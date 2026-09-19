@@ -1,0 +1,9 @@
+{
+  "name": "Books Store",
+  "short_name": "Books Store",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "description": "Books Store — сучасний онлайн-магазин книг"
+}
