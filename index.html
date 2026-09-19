@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="uk" class="light">
+<head>
+  <meta charset="UTF-8">
+  
+  <!-- НАЧАЛО: Теги для отключения кэша -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <!-- КОНЕЦ: Теги для отключения кэша -->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Books Store — Сучасний онлайн-магазин книг</title>
+
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f3ff',
+              100: '#e1e7fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              900: '#1e1b4b',
+              950: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .dark ::-webkit-scrollbar-thumb { background: #334155; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .dark .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); }
+  
+    .book-card-image { aspect-ratio: 3 / 4; }
+    .trust-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .trust-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15,23,42,.08); }
+    .sale-glow { box-shadow: 0 0 0 1px rgba(244,63,94,.12), 0 10px 30px rgba(244,63,94,.08); }
+    .status-pill { font-size: 10px; font-weight: 800; padding: .25rem .55rem; border-radius: 999px; }
+</style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-300">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 glass border-b border-slate-200/80 dark:border-slate-800/80 transition-all">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-3 flex items-center justify-between gap-1.5 sm:gap-4">
+      
+      <!-- Logo with Books Store text -->
+      <a href="javascript:void(0)" onclick="resetToHome()" class="flex items-center gap-2.5 cursor-pointer group shrink-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+          <i class="fa-solid fa-book-open text-base sm:text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white leading-none">Books Store</h1>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="flex-1 max-w-xs sm:max-w-md relative mx-1 sm:mx-2">
+        <div class="relative flex items-center">
+          <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="Пошук книг, авторів, жанрів..." 
+            class="w-full pl-8 sm:pl-9 pr-7 sm:pr-8 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 border border-transparent focus:border-indigo-500 dark:focus:border-amber-400 outline-none transition shadow-inner">
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 sm:left-3 text-slate-400 text-xs sm:text-sm"></i>
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div id="searchAutosuggest" class="hidden absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 max-h-80 overflow-y-auto z-50 divide-y dark:divide-slate-700/50"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+        <button onclick="toggleDarkMode()" class="p-1.5 sm:p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Змінити тему">
+          <i id="themeIcon" class="fa-solid fa-moon text-sm sm:text-lg"></i>
+        </button>
+
+        <select onchange="changeLanguage(this.value)" class="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-200 rounded-xl px-1.5 sm:px-2 py-1.5 sm:py-2 outline-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+          <option value="uk">UA</option>
+          <option value="pl">PL</option>
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
+
+        <button onclick="toggleWishlistModal()" class="relative p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Обране">
+          <i class="fa-solid fa-heart text-base sm:text-lg"></i>
+          <span id="wishlistCount" class="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 bg-rose-500 text-white text-[9px] sm:text-[10px] font-bold rounded-full w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center">0</span>
+        </button>
+
+        <button onclick="openOrdersModal()" class="relative p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Історія замовлень">
+          <i class="fa-solid fa-box text-base sm:text-lg"></i>
+        </button>
+
+        <button onclick="toggleCart()" class="relative p-1.5 sm:p-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-amber-400 dark:hover:bg-amber-500 text-white dark:text-slate-950 rounded-xl font-bold transition shadow-md shadow-indigo-500/20 flex items-center gap-1 sm:gap-2 px-2 sm:px-3">
+          <i class="fa-solid fa-cart-shopping text-sm sm:text-base"></i>
+          <span id="cartCount" class="bg-white/20 dark:bg-slate-900/20 px-1 py-0.5 rounded-md text-[10px] sm:text-xs">0</span>
+        </button>
+
+        <button id="adminBtn" onclick="toggleAdminView()" class="hidden bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ml-0.5 sm:ml-1">
+          <i class="fa-solid fa-user-gear text-amber-400 dark:text-indigo-600"></i>
+          <span id="adminBtnText" class="hidden md:inline">Адмінка</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-1 space-y-6">
+
+    <!-- USER VIEW -->
+    <div id="userView" class="space-y-6">
+
+      <!-- BANNER CAROUSEL -->
+      <section id="bannerSection" class="relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-950 text-white border border-indigo-700/30 min-h-[220px] sm:min-h-[280px] flex items-center group">
+        <div id="carouselSlides" class="w-full relative min-h-[220px] sm:min-h-[280px] flex items-center"></div>
+        <button onclick="prevSlide()" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/40 hover:bg-slate-950/70 text-white backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <button onclick="nextSlide()" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/40 hover:bg-slate-950/70 text-white backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+        <div id="carouselDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20"></div>
+      </section>
+
+      <!-- Store trust / value proposition -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="trust-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-amber-400 flex items-center justify-center"><i class="fa-solid fa-truck-fast"></i></div><div><div class="font-black text-xs">Швидка доставка</div><div class="text-[10px] text-slate-400">Зручні способи отримання</div></div></div>
+        <div class="trust-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-slate-700 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-tag"></i></div><div><div class="font-black text-xs">Чесні ціни</div><div class="text-[10px] text-slate-400">Регулярні знижки</div></div></div>
+        <div class="trust-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-slate-700 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-book-open"></i></div><div><div class="font-black text-xs">Великий вибір</div><div class="text-[10px] text-slate-400">Класика, новинки та жанри</div></div></div>
+        <div class="trust-card bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-slate-700 text-rose-600 flex items-center justify-center"><i class="fa-solid fa-heart"></i></div><div><div class="font-black text-xs">Обране</div><div class="text-[10px] text-slate-400">Зберігайте улюблені книги</div></div></div>
+      </section>
+
+      <section class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-5 sm:p-7 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div><p class="text-amber-400 text-[10px] font-black uppercase tracking-[.2em] mb-2">Books Store</p><h2 class="text-xl sm:text-2xl font-black">Знайди книгу, до якої захочеться повертатися</h2><p class="text-xs sm:text-sm text-white/70 mt-2">Бестселери, класика, фантастика та інші жанри — швидка доставка і приємні ціни.</p></div>
+          <button onclick="scrollToCatalog()" class="shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs shadow-lg"><i class="fa-solid fa-grid-2 mr-2"></i>Каталог</button>
+        </div>
+      </section>
+
+      <section id="featuredSection" class="space-y-3">
+        <div class="flex items-end justify-between"><div><p class="text-[10px] uppercase tracking-[.2em] text-indigo-500 dark:text-amber-400 font-black">Вибір магазину</p><h2 id="featuredTitle" class="text-lg sm:text-xl font-black">Популярні книги</h2></div><button onclick="setTagFilter('bestseller'); scrollToCatalog()" class="text-xs font-bold text-indigo-600 dark:text-amber-400">Дивитися всі →</button></div>
+        <div id="featuredGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- Filters -->
+      <div class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-1">
+          <div id="categoriesList" class="flex items-center gap-2 overflow-x-auto scrollbar-none py-1"></div>
+          <div class="flex items-center gap-2">
+            <select id="allGenresDropdown" onchange="filterCategory(this.value)" class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold text-xs px-3 py-2 rounded-2xl border border-slate-200 dark:border-slate-600 outline-none cursor-pointer"></select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+          <span id="lblQuickTags" class="font-bold text-slate-400 uppercase text-[10px] tracking-wider mr-1">Теги:</span>
+          <button onclick="setTagFilter('all')" id="tag-all" class="tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-sm"><span id="lblTagAll">Усі</span></button>
+          <button onclick="setTagFilter('bestseller')" id="tag-bestseller" class="tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1"><i class="fa-solid fa-fire text-amber-500"></i> <span id="lblTagBestseller">Хіти</span></button>
+          <button onclick="setTagFilter('new')" id="tag-new" class="tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1"><i class="fa-solid fa-sparkles text-indigo-500"></i> <span id="lblTagNew">Новинки</span></button>
+          <button onclick="setTagFilter('sale')" id="tag-sale" class="tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-sm flex items-center gap-1"><i class="fa-solid fa-percent text-rose-500"></i> <span id="lblTagSale">Знижка</span></button>
+        </div>
+
+        <div class="md:hidden pt-2 border-t border-slate-100 dark:border-slate-700/60">
+          <button onclick="toggleMobileFilters()" id="mobileFiltersToggleBtn" class="w-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold py-2 px-4 rounded-xl text-xs flex items-center justify-between transition">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-sliders text-indigo-600 dark:text-amber-400"></i> <span id="lblAdvancedFilters">Розширені фільтри</span></span>
+            <i id="mobileFiltersChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+          </button>
+        </div>
+
+        <div id="desktopFilters" class="hidden md:grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 pt-3 border-t border-slate-100 dark:border-slate-700/60 text-xs">
+          <div>
+            <label id="optDefault" class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Сортування</label>
+            <select id="sortSelect" onchange="renderBooks()" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+              <option value="default" id="optDefaultOpt">За замовчуванням</option>
+              <option value="price-asc" id="optPriceAsc">Ціна: від найдешевшої</option>
+              <option value="price-desc" id="optPriceDesc">Ціна: від найдорожчої</option>
+              <option value="discount" id="optDiscount">Спочатку зі знижкою</option>
+              <option value="rating-desc" id="optRatingDesc">За рейтингом</option>
+            </select>
+          </div>
+          <div>
+            <label id="lblLangFilter" class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Мова книги:</label>
+            <select id="bookLangFilter" onchange="renderBooks()" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+              <option value="all" id="optAllBookLangs">Усі мови</option>
+              <option value="UA">UA</option>
+              <option value="PL">PL</option>
+              <option value="EN">EN</option>
+              <option value="RU">RU</option>
+            </select>
+          </div>
+          <div>
+            <label id="lblPriceRange" class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Ціна:</label>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" id="priceFrom" min="0" step="0.01" value="0" oninput="renderBooks()" placeholder="Від" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+              <input type="number" id="priceTo" min="0" step="0.01" value="10000" oninput="renderBooks()" placeholder="До" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-1 text-[10px] text-slate-400 font-semibold"><span id="lblPriceFrom">Від</span><span id="lblPriceTo">До</span></div>
+          </div>
+          <div>
+            <label id="lblMinRating" class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Мін. рейтинг:</label>
+            <select id="ratingFilter" onchange="renderBooks()" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+              <option value="0" id="optAllRatings">Усі оцінки</option>
+              <option value="4.5">★ 4.5+</option>
+              <option value="4.0">★ 4.0+</option>
+              <option value="3.0">★ 3.0+</option>
+            </select>
+          </div>
+          <div>
+            <label id="lblAvailability" class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Наявність:</label>
+            <select id="availabilityFilter" onchange="renderBooks()" class="w-full p-2 border border-slate-200 dark:border-slate-700 rounded-xl outline-none bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white font-medium">
+              <option value="all" id="optAllStock">Усі книги</option>
+              <option value="in-stock" id="optInStock">В наявності</option>
+              <option value="on-order" id="optOnOrder">Під замовлення</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Books Grid -->
+      <div id="booksGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+      <div id="pagination" class="flex justify-center items-center gap-2 pt-6"></div>
+    </div>
+
+    <!-- ADMIN VIEW -->
+    <div id="adminView" class="hidden space-y-6">
+      
+      <!-- Stats Dashboard -->
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+          <p class="text-xs text-slate-500 font-semibold" id="statOrdersLbl">Всього замовлень</p>
+          <p id="statOrdersCount" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0</p>
+        </div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+          <p class="text-xs text-slate-500 font-semibold" id="statTodayOrdersLbl">Замовлень за сьогодні</p>
+          <p id="statTodayOrdersCount" class="text-2xl font-black text-indigo-600 dark:text-amber-400 mt-1">0</p>
+        </div>
+      
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80"><p class="text-xs text-slate-500 font-semibold">Книг у каталозі</p><p id="statBooksCount" class="text-2xl font-black text-violet-600 mt-1">0</p></div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80"><p class="text-xs text-slate-500 font-semibold">Виручка</p><p id="statRevenue" class="text-2xl font-black text-emerald-600 mt-1">0.00 zł</p></div>
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80"><p class="text-xs text-slate-500 font-semibold">Зі знижкою</p><p id="statDiscountBooks" class="text-2xl font-black text-rose-600 mt-1">0</p></div></div>
+
+      <div class="flex border-b border-slate-200 dark:border-slate-700 gap-4 text-sm font-bold">
+        <button onclick="switchAdminTab('dashboard')" id="adminTabBtn-dashboard" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800">Огляд</button>
+        <button onclick="switchAdminTab('books')" id="adminTabBtn-books" class="pb-3 border-b-2 border-indigo-600 dark:border-amber-400 text-indigo-600 dark:text-amber-400">Каталог книг</button>
+        <button onclick="switchAdminTab('banners')" id="adminTabBtn-banners" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800">Баннери</button>
+        <button onclick="switchAdminTab('reviews')" id="adminTabBtn-reviews" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800">Відгуки</button>
+        <button onclick="switchAdminTab('orders')" id="adminTabBtn-orders" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800">Замовлення</button>
+      </div>
+
+
+      <div id="adminTab-dashboard" class="hidden space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 p-5"><div class="flex items-center justify-between mb-4"><h3 class="font-black">Останні замовлення</h3><button onclick="switchAdminTab('orders')" class="text-xs text-indigo-600 dark:text-amber-400 font-bold">Усі →</button></div><div id="dashboardRecentOrders" class="space-y-2"></div></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 p-5"><h3 class="font-black mb-4">Популярні книги</h3><div id="dashboardTopBooks" class="space-y-2"></div></div>
+        </div>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 p-5"><div class="flex flex-wrap items-center justify-between gap-3"><div><h3 class="font-black">Інструменти</h3><p class="text-xs text-slate-400 mt-1">Експорт каталогу та замовлень для резервної копії.</p></div><div class="flex gap-2"><button onclick="exportBooksJSON()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold">Книги JSON</button><button onclick="exportOrdersCSV()" class="px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold">Замовлення CSV</button></div></div></div>
+      </div>
+
+      <!-- Admin TAB: BOOKS -->
+      <div id="adminTab-books" class="space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+          <div class="flex items-center gap-2">
+            <h2 id="adminTitle" class="text-base font-bold">Панель управління каталогом</h2>
+            <input type="text" id="adminSearchInput" oninput="renderAdminTable()" placeholder="Швидкий фільтр..." class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700 text-xs outline-none">
+          </div>
+          <div class="flex gap-2">
+            <button onclick="exportBooksJSON()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-download"></i> <span id="exportJsonBtnText">Експорт JSON</span></button>
+            <button onclick="openAddBookModal()" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-amber-400 dark:text-slate-950 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md"><i class="fa-solid fa-plus"></i> <span id="addBookBtnText">Додати книгу</span></button>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm overflow-hidden border border-slate-200/80 dark:border-slate-700/80">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700 text-slate-500 uppercase font-bold">
+                <tr>
+                  <th class="p-4">Обкладинка</th>
+                  <th class="p-4">Код / Артикул</th>
+                  <th class="p-4">Назва / Автор</th>
+                  <th class="p-4">Категорія</th>
+                  <th class="p-4">Стан</th>
+                  <th class="p-4">Мова</th>
+                  <th id="thAdminPrice" class="p-4">Ціна</th>
+                  <th id="thAdminDiscount" class="p-4">Знижка</th>
+                  <th class="p-4">Залишок</th>
+                  <th id="thAdminTag" class="p-4">Тег</th>
+                  <th id="thAdminActions" class="p-4">Дії</th>
+                </tr>
+              </thead>
+              <tbody id="adminBooksTable" class="divide-y dark:divide-slate-700"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin TAB: BANNERS -->
+      <div id="adminTab-banners" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+          <h2 class="text-base font-bold">Управління Баннерами</h2>
+          <button onclick="openAddBannerModal()" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-amber-400 dark:text-slate-950 text-white px-4 py-2 rounded-xl text-xs font-bold transition">+ Додати баннер</button>
+        </div>
+        <div id="adminBannersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Admin TAB: ORDERS -->
+      <div id="adminTab-reviews" class="hidden space-y-4"><div class="bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 p-5"><div class="flex items-center justify-between mb-4"><h3 class="font-black">Відгуки клієнтів</h3><span id="adminReviewsCount" class="text-xs text-slate-400"></span></div><div id="adminReviewsList" class="space-y-3"></div></div></div>
+
+      <div id="adminTab-orders" class="hidden space-y-4">
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-700/80">
+          <h2 class="text-base font-bold">Отримані замовлення</h2>
+        </div>
+        <div id="adminOrdersList" class="space-y-3"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs mt-12">
+    <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+      <div class="space-y-3">
+        <div class="flex items-center gap-2 text-white">
+          <div class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold"><i class="fa-solid fa-book-open text-xs"></i></div>
+          <span class="font-extrabold text-base tracking-wide">Books Store</span>
+        </div>
+        <p id="footerBrandDesc" class="leading-relaxed">Твій надійний провідник у світ літератури. Найкращі книги за найвигіднішими цінами з доставкою до дверей.</p>
+      </div>
+      <div>
+        <h4 id="footerNavTitle" class="font-bold text-white mb-3 text-sm">Навігація</h4>
+        <ul class="space-y-2">
+          <li><a href="javascript:void(0)" onclick="resetToHome()" id="footerNavHome" class="hover:text-amber-400 transition">Головна</a></li>
+          <li><a href="javascript:void(0)" onclick="filterCategory('all')" id="footerNavCatalog" class="hover:text-amber-400 transition">Каталог книг</a></li>
+          <li><a href="javascript:void(0)" onclick="toggleWishlistModal()" id="footerNavWishlist" class="hover:text-amber-400 transition">Список обраного</a></li>
+          <li><a href="javascript:void(0)" onclick="toggleCart()" id="footerNavCart" class="hover:text-amber-400 transition">Кошик</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 id="footerContactsTitle" class="font-bold text-white mb-3 text-sm">Контакти та Оплата</h4>
+        <ul class="space-y-2 mb-4">
+          <li class="flex items-center gap-2"><i class="fa-solid fa-envelope text-amber-400"></i> books.store.plua@gmail.com</li>
+        </ul>
+        <p id="footerPaymentInfo" class="text-[11px] text-slate-500">Приймаємо: Visa, Mastercard, BLIK</p>
+      </div>
+    </div>
+    <div class="bg-slate-900/60 py-4 border-t border-slate-800/60 text-center text-slate-500 text-[11px]">
+      <p id="footerRights">© 2026 Books Store. Всі права захищені.</p>
+    </div>
+  </footer>
+
+  <!-- Modals & Drawers -->
+  <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleCart()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="absolute right-0 top-0 h-full max-w-xs sm:max-w-sm w-full bg-white dark:bg-slate-800 shadow-2xl p-6 flex flex-col justify-between z-10 dark:text-white">
+      <div>
+        <div class="flex justify-between items-center pb-4 border-b dark:border-slate-700">
+          <h3 id="cartHeading" class="font-bold text-lg">Кошик</h3>
+          <button onclick="toggleCart()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div id="cartItems" class="mt-4 space-y-4 max-h-[60vh] overflow-y-auto"></div>
+      </div>
+      <div class="pt-4 border-t dark:border-slate-700 space-y-3">
+        <div class="flex justify-between items-center font-bold text-base">
+          <span id="cartTotalLabel">Разом до сплати:</span>
+          <span id="cartTotal" class="text-indigo-600 dark:text-amber-400 font-black">0.00 zł</span>
+        </div>
+        <button onclick="checkout()" id="checkoutBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-amber-400 text-white dark:text-slate-950 py-3 rounded-2xl font-bold text-sm transition shadow-lg">Оформити замовлення</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quickBuyModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeQuickBuyModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto space-y-4">
+      <div class="flex justify-between items-center border-b dark:border-slate-700 pb-3">
+        <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-bolt text-amber-500"></i> <span id="quickBuyModalTitle">Купити в 1 клік</span></h3>
+        <button onclick="closeQuickBuyModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="quickBuyItemPreview" class="flex items-center gap-3 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-2xl"></div>
+      <form onsubmit="handleQuickBuySubmit(event)" class="space-y-3">
+        <input type="hidden" id="quickBuyBookId">
+        <div><label id="lblQuickBuyName" class="text-xs font-bold block mb-1">Ваше ім'я</label><input type="text" id="quickBuyName" required pattern="[A-Za-z\s\-']+" placeholder="Jan Kowalski" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblQuickBuyEmail" class="text-xs font-bold block mb-1">E-mail</label><input type="email" id="quickBuyEmail" required placeholder="example@email.com" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblQuickBuyPhone" class="text-xs font-bold block mb-1">Номер телефону</label><input type="tel" id="quickBuyPhone" required placeholder="+48 ..." class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div>
+          <label id="lblQuickBuyShipping" class="text-xs font-bold block mb-1">Служба доставки</label>
+          <select id="quickBuyShipping" onchange="handleQuickBuyShippingChange(this.value)" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold">
+            <option value="inpost">InPost Paczkomat</option>
+            <option value="dhl">DHL Courier</option>
+            <option value="novaposhta">Нова Пошта (Nova Post)</option>
+          </select>
+        </div>
+        <div id="quickBuyShippingDetailsContainer"><label class="text-xs font-bold block mb-1">Код пачкомату</label><input type="text" id="quickBuyShippingDetails" required placeholder="WAW01A" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div>
+          <label id="lblQuickBuyPayment" class="text-xs font-bold block mb-1">Спосіб оплати</label>
+          <select id="quickBuyPayment" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"><option value="BLIK">BLIK</option><option value="Cash">При отриманні</option></select>
+        </div>
+        <div><label id="lblQuickOrderComment" class="text-xs font-bold block mb-1">Коментар до замовлення (необов’язково)</label><textarea id="quickBuyOrderComment" rows="2" placeholder="Наприклад: зателефонуйте перед доставкою" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></textarea></div>
+        <button type="submit" id="btnQuickBuyConfirm" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold py-3 rounded-xl text-xs transition shadow-md mt-2">Підтвердити замовлення</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="wishlistModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="toggleWishlistModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10">
+      <div class="flex justify-between items-center mb-4"><h3 id="wishlistModalTitle" class="font-bold text-lg">Список обраного</h3><button onclick="toggleWishlistModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+      <div id="wishlistItems" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="ordersModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeOrdersModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-lg w-full p-6 shadow-2xl z-10 space-y-4">
+      <div class="flex justify-between items-center border-b dark:border-slate-700 pb-3"><h3 id="lblOrdersHistoryTitle" class="font-bold text-lg">Мої замовлення</h3><button onclick="closeOrdersModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+      <div id="userOrdersList" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <div id="bookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeBookModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div id="bookModalContent" class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-lg w-full p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"></div>
+  </div>
+
+  <!-- ADD / EDIT BOOK MODAL -->
+  <div id="addBookModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeAddBookModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4"><h3 id="addBookModalTitle" class="text-lg font-bold">Додати нову книгу</h3><button onclick="closeAddBookModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+      <form id="addBookForm" onsubmit="handleSaveBook(event)" class="space-y-3">
+        <input type="hidden" id="editingBookId" value="">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-xs font-bold block mb-1">Код книги / SKU</label><input type="text" id="newBookCode" required placeholder="BS-001" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+          <div><label class="text-xs font-bold block mb-1">Мова книги</label><select id="newLang" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"><option value="UA">UA</option><option value="PL">PL</option><option value="EN">EN</option><option value="RU">RU</option></select></div>
+        </div>
+        <div><label id="lblTitle" class="text-xs font-bold block mb-1">Назва книги</label><input type="text" id="newTitle" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblAuthor" class="text-xs font-bold block mb-1">Автор</label><input type="text" id="newAuthor" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label id="lblCategory" class="text-xs font-bold block mb-1">Категорія / Жанр</label><select id="newCategorySelect" onchange="handleCategorySelectChange(this.value)" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"></select></div>
+          <div><label id="lblCondition" class="text-xs font-bold block mb-1">Стан книги</label><select id="newCondition" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"><option value="new">Нова</option><option value="used">Б/У</option></select></div>
+        </div>
+        <input type="text" id="newCategoryInput" placeholder="Введіть власний новий жанр..." class="hidden w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none">
+        <div><label id="lblBookTag" class="text-xs font-bold block mb-1">Тег книги</label><select id="newTag" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"><option value="">Без тега</option><option value="bestseller">Хіти</option><option value="new">Новинки</option><option value="sale">Знижка</option></select></div>
+        <div class="flex items-center gap-2 py-1"><input type="checkbox" id="newIsOnOrder" onchange="togglePriceFields(this.checked)" class="w-4 h-4 accent-indigo-600 rounded cursor-pointer"><label for="newIsOnOrder" id="lblIsOnOrder" class="text-xs font-bold text-indigo-600 dark:text-amber-400 cursor-pointer">Під замовлення (без ціни)</label></div>
+        <div id="priceFieldsGroup" class="grid grid-cols-2 gap-3">
+          <div><label id="lblPrice" class="text-xs font-bold block mb-1">Ціна (zł)</label><input type="number" step="0.01" id="newPrice" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+          <div><label id="lblDiscount" class="text-xs font-bold block mb-1">Знижка (%)</label><input type="number" id="newDiscount" value="0" min="0" max="99" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label id="lblRating" class="text-xs font-bold block mb-1">Рейтинг (1-5)</label><input type="number" step="0.1" min="1" max="5" id="newRating" value="5.0" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+          <div class="sm:col-span-2"><label id="lblImage" class="text-xs font-bold block mb-1">Фото книги (URL)</label><textarea id="newImages" rows="3" required placeholder="Вставляй по одному URL на рядок або через кому" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></textarea><p id="lblImageHint" class="text-[10px] text-slate-400 mt-1">Можна додати кілька фото — покупець зможе їх гортати.</p></div>
+        </div>
+        <div><label class="text-xs font-bold block mb-1">Залишок</label><input type="number" id="newStock" min="0" value="10" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblDesc" class="text-xs font-bold block mb-1">Опис</label><textarea id="newDesc" rows="2" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></textarea></div>
+        <button type="submit" id="saveBookBtn" class="w-full bg-indigo-600 dark:bg-amber-400 dark:text-slate-950 text-white font-bold py-3 rounded-xl text-xs hover:bg-indigo-700 transition mt-2">Зберегти книгу</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="reviewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeReviewModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10">
+      <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-black">Залишити відгук</h3><button onclick="closeReviewModal()" class="text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+      <form onsubmit="handleReviewSubmit(event)" class="space-y-3"><input type="hidden" id="reviewBookId"><input id="reviewName" required placeholder="Ваше ім'я" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"><select id="reviewRating" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs"><option value="5">★★★★★ 5</option><option value="4">★★★★☆ 4</option><option value="3">★★★☆☆ 3</option><option value="2">★★☆☆☆ 2</option><option value="1">★☆☆☆☆ 1</option></select><textarea id="reviewComment" rows="4" required placeholder="Ваш відгук" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></textarea><button class="w-full bg-indigo-600 dark:bg-amber-400 dark:text-slate-950 text-white font-bold py-3 rounded-xl text-xs">Опублікувати відгук</button></form>
+    </div>
+  </div>
+
+  <div id="checkoutModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeCheckoutModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4"><h3 id="checkoutModalTitle" class="text-lg font-bold">Оформлення замовлення</h3><button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+      <form id="checkoutForm" onsubmit="handleCheckoutSubmit(event)" class="space-y-3">
+        <div><label id="lblCustomerName" class="text-xs font-bold block mb-1">Ім'я та Прізвище</label><input type="text" id="custName" required pattern="[A-Za-z\s\-']+" placeholder="Jan Kowalski" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblCustomerEmail" class="text-xs font-bold block mb-1">E-mail адреса</label><input type="email" id="custEmail" required placeholder="example@email.com" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label id="lblCustomerPhone" class="text-xs font-bold block mb-1">Номер телефону</label><input type="tel" id="custPhone" required placeholder="+48 ..." class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div>
+          <label id="lblShippingMethod" class="text-xs font-bold block mb-1">Служба доставки</label>
+          <select id="custShipping" onchange="handleShippingChange(this.value)" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"><option value="inpost">InPost Paczkomat</option><option value="dhl">DHL Courier</option><option value="novaposhta">Нова Пошта (Nova Post)</option></select>
+        </div>
+        <div id="shippingDetailsContainer"><label id="lblShippingDetails" class="text-xs font-bold block mb-1">Код пачкомату</label><input type="text" id="custShippingDetails" required placeholder="WAW01A" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div>
+          <label id="lblPaymentMethod" class="text-xs font-bold block mb-1">Спосіб оплати</label>
+          <select id="custPayment" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none font-semibold"><option id="optPayBlik" value="BLIK">BLIK</option><option id="optPayCash" value="Cash">При отриманні</option></select>
+        </div>
+        <div><label id="lblOrderComment" class="text-xs font-bold block mb-1">Коментар до замовлення (необов’язково)</label><textarea id="custOrderComment" rows="2" placeholder="Наприклад: зателефонуйте перед доставкою" class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></textarea></div>
+        <div class="flex justify-between items-center pt-3 border-t dark:border-slate-700 font-bold"><span id="lblConfirmTotal" class="text-sm">Сума:</span><span id="checkoutModalTotal" class="text-indigo-600 dark:text-amber-400 text-lg font-black">0.00 zł</span></div>
+        <button type="submit" id="confirmOrderBtn" class="w-full bg-indigo-600 dark:bg-amber-400 dark:text-slate-950 text-white font-bold py-3 rounded-xl text-xs hover:bg-indigo-700 transition mt-2">Підтвердити замовлення</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="adminAuthModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeAdminAuthModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-xs w-full p-6 shadow-2xl z-10 text-center">
+      <div class="w-12 h-12 bg-indigo-100 dark:bg-slate-700 text-indigo-600 dark:text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-lock text-xl"></i></div>
+      <h3 id="adminAuthTitle" class="text-base font-bold mb-1">Доступ до адмінки</h3>
+      <p id="adminAuthDesc" class="text-xs text-slate-500 mb-4">Введіть пароль адміністратора</p>
+      <form onsubmit="handleAdminAuth(event)" class="space-y-3">
+        <input type="password" id="adminPasswordInput" placeholder="Пароль..." required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none text-center">
+        <div class="flex gap-2">
+          <button type="button" onclick="closeAdminAuthModal()" id="adminAuthCancel" class="w-1/2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white font-bold py-2 rounded-xl text-xs">Скасувати</button>
+          <button type="submit" id="adminAuthSubmit" class="w-1/2 bg-indigo-600 dark:bg-amber-400 dark:text-slate-950 text-white font-bold py-2 rounded-xl text-xs">Увійти</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="addBannerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div onclick="closeAddBannerModal()" class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"></div>
+    <div class="relative bg-white dark:bg-slate-800 dark:text-white rounded-3xl max-w-md w-full p-6 shadow-2xl z-10 space-y-3">
+      <div class="flex justify-between items-center mb-2"><h3 class="text-base font-bold">Додати / Редагувати Баннер</h3><button onclick="closeAddBannerModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button></div>
+      <form onsubmit="handleSaveBanner(event)" class="space-y-3">
+        <div><label class="text-xs font-bold block mb-1">Заголовок</label><input type="text" id="bannerTitle" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label class="text-xs font-bold block mb-1">Підзаголовок</label><input type="text" id="bannerSubtitle" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label class="text-xs font-bold block mb-1">Зображення баннера (URL)</label><input type="url" id="bannerImage" required placeholder="https://..." class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <div><label class="text-xs font-bold block mb-1">Текст кнопки</label><input type="text" id="bannerBtnText" value="Дивитися" required class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none"></div>
+        <button type="submit" class="w-full bg-indigo-600 dark:bg-amber-400 dark:text-slate-950 text-white font-bold py-3 rounded-xl text-xs hover:bg-indigo-700 transition">Зберегти Баннер</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="telegramWidget" class="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
+    <div id="telegramMessage" class="relative max-w-[280px] bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 px-4 py-3 pr-9 text-xs font-semibold">
+      <button type="button" onclick="closeTelegramMessage()" class="absolute right-2 top-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+      <span id="telegramMessageText">Хочете продати свою книгу? Пишіть у Telegram!</span>
+    </div>
+    <a href="https://t.me/rezort667" target="_blank" rel="noopener noreferrer" aria-label="Telegram" class="w-14 h-14 rounded-full bg-[#229ED9] hover:scale-105 active:scale-95 text-white shadow-xl flex items-center justify-center transition-transform">
+      <i class="fa-brands fa-telegram text-3xl"></i>
+    </a>
+  </div>
+
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    const translations = {
+      uk: {
+        searchPlaceholder: "Пошук книг, авторів, жанрів...",
+        lblAdvancedFilters: "Розширені фільтри",
+        telegramMessage: "Хочете продати свою книгу? Пишіть у Telegram!",
+        lblOrderComment: "Коментар до замовлення (необов’язково)",
+        lblImageHint: "Можна додати кілька фото — покупець зможе їх гортати.",
+        adminBtnText: "Адмінка",
+        toShopText: "В магазин",
+        allCategories: "Усі книги",
+        optDefault: "Сортування за замовчуванням",
+        optPriceAsc: "Ціна: від найдешевшої",
+        optPriceDesc: "Ціна: від найдорожчої",
+        optDiscount: "Спочатку зі знижкою",
+        optRatingDesc: "За рейтингом",
+        addToCart: "У кошик",
+        onOrderStatus: "Під замовлення",
+        adminTitle: "Панель управління каталогом",
+        exportJsonBtnText: "Експорт JSON",
+        addBookBtnText: "Додати книгу",
+        thCover: "Обкладинка",
+        thTitle: "Назва / Автор",
+        thCategory: "Категорія",
+        thCondition: "Стан",
+        thLang: "Мова",
+        thPrice: "Ціна",
+        thDiscount: "Знижка",
+        thTag: "Тег книги",
+        thActions: "Дії",
+        cartHeading: "Кошик",
+        cartTotalLabel: "Разом до сплати:",
+        checkoutBtn: "Оформити замовлення",
+        cartEmpty: "Кошик порожній!",
+        addBookModalTitle: "Додати нову книгу",
+        lblTitle: "Назва книги",
+        lblAuthor: "Автор",
+        lblCategory: "Категорія / Жанр",
+        lblBookTag: "Тег книги",
+        tagNone: "Без тега",
+        tagBestseller: "Хіти",
+        tagNew: "Новинки",
+        tagSale: "Знижка",
+        lblCondition: "Стан книги",
+        lblPrice: "Ціна (zł)",
+        lblDiscount: "Знижка (%)",
+        lblRating: "Рейтинг (1-5)",
+        lblImage: "Обкладинка (URL)",
+        lblDesc: "Опис",
+        lblIsOnOrder: "Під замовлення (без ціни)",
+        saveBookBtn: "Зберегти книгу",
+        addedToCartToast: "додано до кошика!",
+        checkoutModalTitle: "Оформлення замовлення",
+        lblCustomerName: "Ім'я та Прізвище",
+        lblCustomerEmail: "E-mail адреса",
+        lblCustomerPhone: "Номер телефону",
+        lblShippingMethod: "Служба доставки",
+        lblPaymentMethod: "Спосіб оплати",
+        optPayBlik: "BLIK",
+        optPayCash: "При отриманні",
+        lblConfirmTotal: "Сума:",
+        confirmOrderBtn: "Підтвердити замовлення",
+        orderSuccessMsg: "Дякуємо за замовлення! Менеджер скоро зв'яжеться з вами для уточнення деталей.",
+        wishlistModalTitle: "Список обраного",
+        wishlistEmpty: "У вас немає збережених книг",
+        addedToWishlist: "додано до обраного",
+        removedFromWishlist: "видалено з обраного",
+        lblMaxPrice: "Макс. ціна:",
+        lblPriceRange: "Ціна:",
+        lblPriceFrom: "Від",
+        lblPriceTo: "До",
+        lblMinRating: "Мін. рейтинг:",
+        optAllRatings: "Усі оцінки",
+        reviewsHeading: "Відгуки та оцінки",
+        noReviewsYet: "Поки немає відгуків. Будьте першим!",
+        addReviewBtn: "Залишити відгук",
+        lblYourName: "Ваше ім'я",
+        lblYourComment: "Ваш відгук",
+        reviewSuccess: "Дякуємо за ваш відгук!",
+        lblLangFilter: "Мова книги:",
+        optAllBookLangs: "Усі мови",
+        lblAvailability: "Наявність:",
+        optAllStock: "Усі книги",
+        optInStock: "В наявності",
+        optOnOrder: "Під замовлення",
+        statOrdersLbl: "Всього замовлень",
+        statTodayOrdersLbl: "Замовлень за сьогодні",
+        newCategoryOpt: "+ Створити власний новий жанр",
+        adminAuthTitle: "Доступ до адмінки",
+        adminAuthDesc: "Введіть пароль адміністратора",
+        adminAuthCancel: "Скасувати",
+        adminAuthSubmit: "Увійти",
+        quickBuyModalTitle: "Купити в 1 клік",
+        lblQuickBuyName: "Ваше ім'я",
+        lblQuickBuyEmail: "E-mail адреса",
+        lblQuickBuyPhone: "Номер телефону",
+        lblQuickBuyShipping: "Служба доставки",
+        lblQuickBuyPayment: "Спосіб оплати",
+        btnQuickBuyConfirm: "Підтвердити замовлення",
+        quickBuySuccess: "Дякуємо за замовлення! Менеджер скоро зв'яжеться з вами для уточнення деталей.",
+        lblOrdersHistoryTitle: "Мої замовлення",
+        noOrdersHistory: "Історія замовлень порожня",
+        lblQuickTags: "Теги:",
+        lblTagAll: "Усі",
+        lblTagBestseller: "Хіти",
+        lblTagNew: "Новинки",
+        lblTagSale: "Знижка",
+        lblAllGenresDropdown: "-- Усі жанри --",
+        inpostLabel: "Код пачкомату",
+        dhlLabel: "Адреса доставки",
+        novaposhtaLabel: "Місто та відділення",
+        quickClickBtnText: "1 клік",
+        condNew: "Нова",
+        condUsed: "Б/У",
+        footerBrandDesc: "Твій надійний провідник у світ літератури. Найкращі книги за найвигіднішими цінами з доставкою до дверей.",
+        footerNavTitle: "Навігація",
+        footerNavHome: "Головна",
+        footerNavCatalog: "Каталог книг",
+        footerNavWishlist: "Список обраного",
+        footerNavCart: "Кошик",
+        footerContactsTitle: "Контакти та Оплата",
+        footerPaymentInfo: "Приймаємо: Visa, Mastercard, BLIK",
+        footerRights: "© 2026 Books Store. Всі права захищені."
+      },
+      pl: {
+        searchPlaceholder: "Szukaj książek, autorów, gatunków...",
+        lblAdvancedFilters: "Rozszerzone filtry",
+        telegramMessage: "Chcesz sprzedać swoją książkę? Napisz na Telegramie!",
+        lblOrderComment: "Komentarz do zamówienia (opcjonalnie)",
+        lblImageHint: "Możesz dodać kilka zdjęć — klient będzie mógł je przeglądać.",
+        adminBtnText: "Admin",
+        toShopText: "Do sklepu",
+        allCategories: "Wszystkie książki",
+        optDefault: "Domyślne sortowanie",
+        optPriceAsc: "Cena: od najtańszej",
+        optPriceDesc: "Cena: od najdroższej",
+        optDiscount: "Najpierw z rabatem",
+        optRatingDesc: "Według oceny",
+        addToCart: "Do koszyka",
+        onOrderStatus: "Na zamówienie",
+        adminTitle: "Panel zarządzania katalogiem",
+        exportJsonBtnText: "Eksportuj JSON",
+        addBookBtnText: "Dodaj książkę",
+        thCover: "Okładka",
+        thTitle: "Tytuł / Autor",
+        thCategory: "Kategoria",
+        thCondition: "Stan",
+        thLang: "Język",
+        thPrice: "Cena",
+        thDiscount: "Zniżka",
+        thTag: "Tag",
+        thActions: "Akcje",
+        cartHeading: "Koszyk",
+        cartTotalLabel: "Razem do zapłaty:",
+        checkoutBtn: "Złóż zamówienie",
+        cartEmpty: "Koszyk jest pusty!",
+        addBookModalTitle: "Dodaj nową książkę",
+        lblTitle: "Tytuł książki",
+        lblAuthor: "Autor",
+        lblCategory: "Kategoria / Gatunek",
+        lblBookTag: "Tag książki",
+        tagNone: "Bez tagu",
+        tagBestseller: "Bestsellery",
+        tagNew: "Nowości",
+        tagSale: "Promocja",
+        lblCondition: "Stan książki",
+        lblPrice: "Cena (zł)",
+        lblDiscount: "Rabat (%)",
+        lblRating: "Ocena (1-5)",
+        lblImage: "Okładka (URL)",
+        lblDesc: "Opis",
+        lblIsOnOrder: "Na zamówienie (bez ceny)",
+        saveBookBtn: "Zapisz książkę",
+        addedToCartToast: "dodano do koszyka!",
+        checkoutModalTitle: "Składanie zamówienia",
+        lblCustomerName: "Imię i Nazwisko",
+        lblCustomerEmail: "Adres e-mail",
+        lblCustomerPhone: "Numer telefonu",
+        lblShippingMethod: "Metoda dostawy",
+        lblPaymentMethod: "Metoda płatności",
+        optPayBlik: "BLIK",
+        optPayCash: "Przy odbiorze",
+        lblConfirmTotal: "Suma:",
+        confirmOrderBtn: "Potwierdź zamówienie",
+        orderSuccessMsg: "Dziękujemy za zamówienie! Menedżer wkrótce skontaktuje się z Tobą w celu ustalenia szczegółów.",
+        wishlistModalTitle: "Lista życzeń",
+        wishlistEmpty: "Brak zapisanych książek",
+        addedToWishlist: "dodano do ulubionych",
+        removedFromWishlist: "usunięto z ulubionych",
+        lblMaxPrice: "Maks. cena:",
+        lblPriceRange: "Cena:",
+        lblPriceFrom: "Od",
+        lblPriceTo: "Do",
+        lblMinRating: "Min. ocena:",
+        optAllRatings: "Wszystkie oceny",
+        reviewsHeading: "Opinie i oceny",
+        noReviewsYet: "Brak opinii. Bądź pierwszy!",
+        addReviewBtn: "Dodaj opinię",
+        lblYourName: "Twoje imię",
+        lblYourComment: "Twoja opinia",
+        reviewSuccess: "Dziękujemy za opinię!",
+        lblLangFilter: "Język książki:",
+        optAllBookLangs: "Wszystkie języki",
+        lblAvailability: "Dostępność:",
+        optAllStock: "Wszystkie książki",
+        optInStock: "W magazynie",
+        optOnOrder: "Na zamówienie",
+        statOrdersLbl: "Zamówień ogółem",
+        statTodayOrdersLbl: "Zamówień dzisiaj",
+        newCategoryOpt: "+ Utwórz własny nowy gatunek",
+        adminAuthTitle: "Dostęp administratora",
+        adminAuthDesc: "Wpisz hasło administratora",
+        adminAuthCancel: "Anuluj",
+        adminAuthSubmit: "Zaloguj",
+        quickBuyModalTitle: "Kup w 1 kliknięcie",
+        lblQuickBuyName: "Twoje imię",
+        lblQuickBuyEmail: "Adres e-mail",
+        lblQuickBuyPhone: "Numer telefonu",
+        lblQuickBuyShipping: "Metoda dostawy",
+        lblQuickBuyPayment: "Metoda płatności",
+        btnQuickBuyConfirm: "Potwierdź zamówienie",
+        quickBuySuccess: "Dziękujemy za zamówienie! Menedżer wkrótce skontaktuje się z Tobą w celu ustalenia szczegółów.",
+        lblOrdersHistoryTitle: "Moje zamówienia",
+        noOrdersHistory: "Historia zamówień jest pusta",
+        lblQuickTags: "Tagi:",
+        lblTagAll: "Wszystkie",
+        lblTagBestseller: "Hity",
+        lblTagNew: "Nowości",
+        lblTagSale: "Rabat",
+        lblAllGenresDropdown: "-- Wszystkie gatunki --",
+        inpostLabel: "Kod paczkomatu",
+        dhlLabel: "Adres dostawy",
+        novaposhtaLabel: "Miasto i oddział",
+        quickClickBtnText: "1 klik",
+        condNew: "Nowa",
+        condUsed: "Używana",
+        footerBrandDesc: "Twój niezawodny przewodnik po świecie literatury. Najlepsze książki w okazyjnych cenach z dostawą do domu.",
+        footerNavTitle: "Nawigacja",
+        footerNavHome: "Strona główna",
+        footerNavCatalog: "Katalog książek",
+        footerNavWishlist: "Lista życzeń",
+        footerNavCart: "Koszyk",
+        footerContactsTitle: "Kontakt i Płatność",
+        footerPaymentInfo: "Akceptujemy: Visa, Mastercard, BLIK",
+        footerRights: "© 2026 Books Store. Wszelkie prawa zastrzeżone."
+      },
+      en: {
+        searchPlaceholder: "Search books, authors, genres...",
+        lblAdvancedFilters: "Advanced filters",
+        telegramMessage: "Want to sell your book? Message us on Telegram!",
+        lblOrderComment: "Order comment (optional)",
+        lblImageHint: "You can add several photos — customers can browse them.",
+        adminBtnText: "Admin Panel",
+        toShopText: "Back to Shop",
+        allCategories: "All Books",
+        optDefault: "Default sorting",
+        optPriceAsc: "Price: Low to High",
+        optPriceDesc: "Price: High to Low",
+        optDiscount: "Discount first",
+        optRatingDesc: "By rating",
+        addToCart: "Add to Cart",
+        onOrderStatus: "On Order",
+        adminTitle: "Catalog Management Panel",
+        exportJsonBtnText: "Export JSON",
+        addBookBtnText: "Add Book",
+        thCover: "Cover",
+        thTitle: "Title / Author",
+        thCategory: "Category",
+        thCondition: "Condition",
+        thLang: "Language",
+        thPrice: "Price",
+        thDiscount: "Discount",
+        thTag: "Tag",
+        thActions: "Actions",
+        cartHeading: "Shopping Cart",
+        cartTotalLabel: "Total:",
+        checkoutBtn: "Checkout",
+        cartEmpty: "Your cart is empty!",
+        addBookModalTitle: "Add New Book",
+        lblTitle: "Book Title",
+        lblAuthor: "Author",
+        lblCategory: "Category / Genre",
+        lblBookTag: "Book tag",
+        tagNone: "No tag",
+        tagBestseller: "Bestsellers",
+        tagNew: "New",
+        tagSale: "Sale",
+        lblCondition: "Book Condition",
+        lblPrice: "Price (zł)",
+        lblDiscount: "Discount (%)",
+        lblRating: "Rating (1-5)",
+        lblImage: "Cover Image Link (URL)",
+        lblDesc: "Description",
+        lblIsOnOrder: "On Order (no price)",
+        saveBookBtn: "Save Book",
+        addedToCartToast: "added to cart!",
+        checkoutModalTitle: "Checkout Order",
+        lblCustomerName: "Full Name",
+        lblCustomerEmail: "E-mail Address",
+        lblCustomerPhone: "Phone Number",
+        lblShippingMethod: "Shipping Method",
+        lblPaymentMethod: "Payment Method",
+        optPayBlik: "BLIK",
+        optPayCash: "Cash on delivery",
+        lblConfirmTotal: "Total:",
+        confirmOrderBtn: "Confirm Order",
+        orderSuccessMsg: "Thank you for your order! The manager will contact you shortly to clarify details.",
+        wishlistModalTitle: "Wishlist",
+        wishlistEmpty: "Your wishlist is empty",
+        addedToWishlist: "added to wishlist",
+        removedFromWishlist: "removed from wishlist",
+        lblMaxPrice: "Max price:",
+        lblPriceRange: "Price:",
+        lblPriceFrom: "From",
+        lblPriceTo: "To",
+        lblMinRating: "Min rating:",
+        optAllRatings: "All ratings",
+        reviewsHeading: "Reviews & Ratings",
+        noReviewsYet: "No reviews yet. Be the first!",
+        addReviewBtn: "Write a review",
+        lblYourName: "Your Name",
+        lblYourComment: "Your Review",
+        reviewSuccess: "Thank you for your review!",
+        lblLangFilter: "Book Language:",
+        optAllBookLangs: "All languages",
+        lblAvailability: "Availability:",
+        optAllStock: "All books",
+        optInStock: "In stock",
+        optOnOrder: "On order",
+        statOrdersLbl: "Total orders",
+        statTodayOrdersLbl: "Orders today",
+        newCategoryOpt: "+ Create custom new genre",
+        adminAuthTitle: "Admin Access",
+        adminAuthDesc: "Enter administrator password",
+        adminAuthCancel: "Cancel",
+        adminAuthSubmit: "Login",
+        quickBuyModalTitle: "1-Click Buy",
+        lblQuickBuyName: "Your Name",
+        lblQuickBuyEmail: "E-mail Address",
+        lblQuickBuyPhone: "Phone Number",
+        lblQuickBuyShipping: "Shipping Method",
+        lblQuickBuyPayment: "Payment Method",
+        btnQuickBuyConfirm: "Confirm Order",
+        quickBuySuccess: "Thank you for your order! The manager will contact you shortly to clarify details.",
+        lblOrdersHistoryTitle: "My Orders",
+        noOrdersHistory: "Order history is empty",
+        lblQuickTags: "Tags:",
+        lblTagAll: "All",
+        lblTagBestseller: "Hits",
+        lblTagNew: "New",
+        lblTagSale: "Sale",
+        lblAllGenresDropdown: "-- All Genres --",
+        inpostLabel: "Locker Code",
+        dhlLabel: "Delivery Address",
+        novaposhtaLabel: "City & Branch",
+        quickClickBtnText: "1-Click",
+        condNew: "New",
+        condUsed: "Used",
+        footerBrandDesc: "Your reliable guide to the world of literature. Best books at great prices with door-to-door delivery.",
+        footerNavTitle: "Navigation",
+        footerNavHome: "Home",
+        footerNavCatalog: "Catalog",
+        footerNavWishlist: "Wishlist",
+        footerNavCart: "Cart",
+        footerContactsTitle: "Contacts & Payment",
+        footerPaymentInfo: "Accepted: Visa, Mastercard, BLIK",
+        footerRights: "© 2026 Books Store. All rights reserved."
+      },
+      ru: {
+        searchPlaceholder: "Поиск книг, авторов, жанров...",
+        lblAdvancedFilters: "Расширенные фильтры",
+        telegramMessage: "Хотите продать свою книгу? Пишите в Telegram!",
+        lblOrderComment: "Комментарий к заказу (необязательно)",
+        lblImageHint: "Можно добавить несколько фото — покупатель сможет их листать.",
+        adminBtnText: "Админка",
+        toShopText: "В магазин",
+        allCategories: "Все книги",
+        optDefault: "Сортировка по умолчанию",
+        optPriceAsc: "Цена: по возрастанию",
+        optPriceDesc: "Цена: по убыванию",
+        optDiscount: "Сначала со скидкой",
+        optRatingDesc: "По рейтингу",
+        addToCart: "В корзину",
+        onOrderStatus: "Под заказ",
+        adminTitle: "Панель управления каталогом",
+        exportJsonBtnText: "Экспорт JSON",
+        addBookBtnText: "Добавить книгу",
+        thCover: "Обложка",
+        thTitle: "Название / Автор",
+        thCategory: "Категория",
+        thCondition: "Состояние",
+        thLang: "Язык",
+        thPrice: "Цена",
+        thDiscount: "Скидка",
+        thTag: "Тег книги",
+        thActions: "Действия",
+        cartHeading: "Корзина",
+        cartTotalLabel: "Итого к оплате:",
+        checkoutBtn: "Оформить заказ",
+        cartEmpty: "Корзина пуста!",
+        addBookModalTitle: "Добавить новую книгу",
+        lblTitle: "Название книги",
+        lblAuthor: "Автор",
+        lblCategory: "Категория / Жанр",
+        lblBookTag: "Тег книги",
+        tagNone: "Без тега",
+        tagBestseller: "Хиты",
+        tagNew: "Новинки",
+        tagSale: "Скидка",
+        lblCondition: "Состояние книги",
+        lblPrice: "Цена (zł)",
+        lblDiscount: "Скидка (%)",
+        lblRating: "Рейтинг (1-5)",
+        lblImage: "Обложка (URL)",
+        lblDesc: "Описание",
+        lblIsOnOrder: "Под заказ (без цены)",
+        saveBookBtn: "Сохранить книгу",
+        addedToCartToast: "добавлено в корзину!",
+        checkoutModalTitle: "Оформление заказа",
+        lblCustomerName: "Имя и Фамилия",
+        lblCustomerEmail: "E-mail адрес",
+        lblCustomerPhone: "Номер телефона",
+        lblShippingMethod: "Служба доставки",
+        lblPaymentMethod: "Способ оплаты",
+        optPayBlik: "BLIK",
+        optPayCash: "При получении",
+        lblConfirmTotal: "Сумма:",
+        confirmOrderBtn: "Подтвердить заказ",
+        orderSuccessMsg: "Спасибо за заказ! Менеджер скоро свяжется с вами для уточнения деталей.",
+        wishlistModalTitle: "Избранное",
+        wishlistEmpty: "Список избранного пуст",
+        addedToWishlist: "добавлено в избранное",
+        removedFromWishlist: "удалено из избранного",
+        lblMaxPrice: "Макс. цена:",
+        lblPriceRange: "Цена:",
+        lblPriceFrom: "От",
+        lblPriceTo: "До",
+        lblMinRating: "Мин. рейтинг:",
+        optAllRatings: "Все оценки",
+        reviewsHeading: "Отзывы и оценки",
+        noReviewsYet: "Пока нет отзывов. Будьте первыми!",
+        addReviewBtn: "Оставить отзыв",
+        lblYourName: "Ваше имя",
+        lblYourComment: "Ваш отзыв",
+        reviewSuccess: "Спасибо за ваш отзыв!",
+        lblLangFilter: "Язык книги:",
+        optAllBookLangs: "Все языки",
+        lblAvailability: "Наличие:",
+        optAllStock: "Все книги",
+        optInStock: "В наличии",
+        optOnOrder: "Под заказ",
+        statOrdersLbl: "Всего заказов",
+        statTodayOrdersLbl: "Заказов за сегодня",
+        newCategoryOpt: "+ Создать свой новый жанр",
+        adminAuthTitle: "Доступ к админке",
+        adminAuthDesc: "Введите пароль администратора",
+        adminAuthCancel: "Отмена",
+        adminAuthSubmit: "Войти",
+        quickBuyModalTitle: "Купить в 1 клик",
+        lblQuickBuyName: "Ваше имя",
+        lblQuickBuyEmail: "E-mail адрес",
+        lblQuickBuyPhone: "Номер телефона",
+        lblQuickBuyShipping: "Служба доставки",
+        lblQuickBuyPayment: "Способ оплаты",
+        btnQuickBuyConfirm: "Подтвердить заказ",
+        quickBuySuccess: "Спасибо за заказ! Менеджер скоро свяжется с вами для уточнения деталей.",
+        lblOrdersHistoryTitle: "Мои заказы",
+        noOrdersHistory: "История заказов пуста",
+        lblQuickTags: "Теги:",
+        lblTagAll: "Все",
+        lblTagBestseller: "Хиты",
+        lblTagNew: "Новинки",
+        lblTagSale: "Скидка",
+        lblAllGenresDropdown: "-- Все жанры --",
+        inpostLabel: "Код пачкомата",
+        dhlLabel: "Адрес доставки",
+        novaposhtaLabel: "Город и отделение",
+        quickClickBtnText: "1 клик",
+        condNew: "Новая",
+        condUsed: "Б/У",
+        footerBrandDesc: "Твой надежный проводник в мир литературы. Лучшие книги по выгодным ценам с доставкой до дверей.",
+        footerNavTitle: "Навигация",
+        footerNavHome: "Главная",
+        footerNavCatalog: "Каталог книг",
+        footerNavWishlist: "Список избранного",
+        footerNavCart: "Корзина",
+        footerContactsTitle: "Контакты и Оплата",
+        footerPaymentInfo: "Принимаем: Visa, Mastercard, BLIK",
+        footerRights: "© 2026 Books Store. Все права защищены."
+      }
+    };
+
+    const genreTranslations = {
+      'Фантастика': { uk: 'Фантастика', pl: 'Sci-Fi', en: 'Sci-Fi', ru: 'Фантастика' },
+      'Класика': { uk: 'Класика', pl: 'Klasyka', en: 'Classics', ru: 'Классика' },
+      'Развиток': { uk: 'Саморозвиток', pl: 'Rozwój osobisty', en: 'Self-Development', ru: 'Саморазвитие' },
+      'Фентезі': { uk: 'Фентезі', pl: 'Fantasy', en: 'Fantasy', ru: 'Фэнтези' },
+      'Детективи': { uk: 'Детективи', pl: 'Kryminały', en: 'Detective & Mystery', ru: 'Детективы' },
+      'Трилери': { uk: 'Трилери', pl: 'Kryminały i Thrillery', en: 'Thrillers', ru: 'Триллеры' },
+      'Жахи': { uk: 'Жахи / Хоррор', pl: 'Horror', en: 'Horror', ru: 'Ужасы / Хоррор' },
+      'Пригоди': { uk: 'Пригоди', pl: 'Przygodowe', en: 'Adventure', ru: 'Приключения' },
+      'Драма': { uk: 'Драма', pl: 'Dramat', en: 'Drama', ru: 'Драма' },
+      'Комедія': { uk: 'Комедія', pl: 'Komedia', en: 'Comedy', ru: 'Комедия' },
+      'Антиутопія': { uk: 'Антиутопія', pl: 'Dystopia', en: 'Dystopia', ru: 'Антиутопия' },
+      'Утопія': { uk: 'Утопія', pl: 'Utopia', en: 'Utopia', ru: 'Утопия' },
+      'Біографія': { uk: 'Біографія', pl: 'Biografia', en: 'Biography', ru: 'Биография' },
+      'Містика': { uk: 'Містика', pl: 'Mistyka', en: 'Mysticism & Paranormal', ru: 'Мистика' },
+      'Романи': { uk: 'Романи', pl: 'Romans', en: 'Romance Novels', ru: 'Романы' },
+      'Бізнес': { uk: 'Бізнес та економіка', pl: 'Biznes i ekonomia', en: 'Business & Economics', ru: 'Бизнес и экономика' },
+      'Психологія': { uk: 'Психологія', pl: 'Psychologia', en: 'Psychology', ru: 'Психология' },
+      'Історія': { uk: 'Історія', pl: 'Historia', en: 'History', ru: 'История' },
+      'Детские': { uk: 'Дитяча література', pl: 'Literatura dziecięca', en: 'Children\'s Books', ru: 'Детская литература' },
+      'Поезія': { uk: 'Поезія', pl: 'Poezja', en: 'Poetry', ru: 'Поэзия' }
+    };
+
+    let currentLang = 'uk';
+
+    const defaultBanners = [
+      { id: 1, title: 'Знайди свою наступну улюблену книгу', subtitle: 'Бестселери, класика, фантастика та інші жанри — великий вибір, швидка доставка й чесні ціни.', bg: 'from-indigo-600 to-purple-800', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600', buttonText: 'Каталог', active: true }
+    ];
+
+    const defaultBooks = [
+      { id: 1, code: 'BS-101', title: 'Дюна', author: 'Frank Herbert', category: 'Фантастика', condition: 'new', lang: 'UA', tag: 'bestseller', price: 55.00, discount: 15, rating: 4.9, isOnOrder: false, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400', desc: 'Монументальна хроніка піщаної планети Арракіс.', reviews: [], stock: 8 },
+      { id: 2, code: 'BS-102', title: '1984', author: 'George Orwell', category: 'Класика', condition: 'used', lang: 'RU', tag: 'bestseller', price: 29.90, discount: 0, rating: 4.8, isOnOrder: false, image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400', desc: 'Роман-антиутопия о тоталитарном обществе.', reviews: [], stock: 5 }
+    ];
+
+    const STORAGE_VERSION = 'v5';
+    if (localStorage.getItem('bs_version') !== STORAGE_VERSION) {
+      // Do not delete existing books/banners when updating the site.
+      localStorage.setItem('bs_version', STORAGE_VERSION);
+    }
+
+    let books;
+    let banners;
+    try { books = JSON.parse(localStorage.getItem('bv_books')); } catch (e) { books = null; }
+    try { banners = JSON.parse(localStorage.getItem('bv_banners')); } catch (e) { banners = null; }
+    if (!Array.isArray(books) || books.length === 0) { books = defaultBooks; localStorage.setItem('bv_books', JSON.stringify(books)); }
+    books = books.map(b => { const imgs = Array.isArray(b.images) && b.images.length ? b.images.filter(Boolean) : (b.image ? [b.image] : []); return { ...b, images: imgs, image: imgs[0] || b.image || '', stock: b.stock == null ? 10 : Number(b.stock) }; });
+    saveBooksToStorage();
+    if (!Array.isArray(banners) || banners.length === 0) { banners = defaultBanners; localStorage.setItem('bv_banners', JSON.stringify(banners)); }
+    if (Array.isArray(banners) && !banners.some(b => b.id === 1001)) { banners.push({ id: 1001, title: 'Знайди свою наступну улюблену книгу', subtitle: 'Бестселери, класика, фантастика та інші жанри — великий вибір, швидка доставка й чесні ціни.', bg: 'from-indigo-600 to-purple-800', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600', buttonText: 'Каталог', active: true }); localStorage.setItem('bv_banners', JSON.stringify(banners)); }
+    let cart = JSON.parse(localStorage.getItem('bv_cart')) || [];
+    let wishlist = JSON.parse(localStorage.getItem('bv_wishlist')) || [];
+    let userOrders = JSON.parse(localStorage.getItem('bv_orders')) || [];
+    userOrders = userOrders.map(o => ({...o, status: o.status || 'new'}));
+    saveOrdersToStorage();
+
+    let currentCategory = 'all';
+    let currentTag = 'all';
+    let isAdmin = false;
+    let currentPage = 1;
+    const itemsPerPage = 8;
+    let currentSlide = 0;
+    let slideTimer = null;
+    const ADMIN_PASSWORD = "admin";
+    let isAdminAuthenticated = false;
+    const WEBHOOK_URL = 'https://hook.eu1.make.com/j7ixox7aocbdsdtlio4osgi9krivj7n2';
+
+    async function sendOrderNotification(orderData) {
+      try {
+        const telegramMessage = `Нове замовлення #${orderData.id}\nСтатус: ${orderData.status || 'new'}\nКлієнт: ${orderData.customer}\nТелефон: ${orderData.phone}\nEmail: ${orderData.email}\nТип: ${orderData.type}\nСума: ${Number(orderData.total).toFixed(2)} zł\nТовари: ${orderData.items.map(i => `${i.title} x${i.qty}`).join(', ')}\nКоментар: ${orderData.comment || '—'}`;
+        await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...orderData, telegramMessage })
+        });
+      } catch (error) { console.error('Webhook error:', error); }
+    }
+
+    function saveBooksToStorage() { localStorage.setItem('bv_books', JSON.stringify(books)); }
+    function saveCartToStorage() { localStorage.setItem('bv_cart', JSON.stringify(cart)); }
+    function saveWishlistToStorage() { localStorage.setItem('bv_wishlist', JSON.stringify(wishlist)); }
+    function saveOrdersToStorage() { localStorage.setItem('bv_orders', JSON.stringify(userOrders)); }
+    function saveBannersToStorage() { localStorage.setItem('bv_banners', JSON.stringify(banners)); }
+
+    function init() {
+      initTheme();
+      changeLanguage('uk');
+      updateCart();
+      updateWishlist();
+      initCarousel();
+      renderFeaturedBooks();
+      updateAdminStats();
+    }
+
+    function resetToHome() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('sortSelect').value = 'default';
+      if (document.getElementById('priceFrom')) document.getElementById('priceFrom').value = 0;
+      if (document.getElementById('priceTo')) document.getElementById('priceTo').value = 10000;
+      document.getElementById('ratingFilter').value = '0';
+      document.getElementById('availabilityFilter').value = 'all';
+      document.getElementById('bookLangFilter').value = 'all';
+      currentCategory = 'all';
+      currentTag = 'all';
+      currentPage = 1;
+      if (isAdmin) toggleAdminView();
+      renderCategories();
+      renderBooks();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('bv_theme', isDark ? 'dark' : 'light');
+      document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun text-amber-400 text-lg' : 'fa-solid fa-moon text-lg';
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('bv_theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-400 text-lg';
+      }
+    }
+
+    function initCarousel() {
+      renderCarousel();
+      startCarouselTimer();
+    }
+
+    function closeTelegramMessage() { const el = document.getElementById('telegramMessage'); if (el) el.classList.add('hidden'); }
+
+    function scrollToCatalog() { const el = document.getElementById('booksGrid'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+    function renderCarousel() {
+      const bannerSection = document.getElementById('bannerSection');
+      const slidesContainer = document.getElementById('carouselSlides');
+      const dotsContainer = document.getElementById('carouselDots');
+      if (!slidesContainer) return;
+
+      const activeBanners = banners.filter(b => b.active !== false);
+      if (!activeBanners.length) { bannerSection.classList.add('hidden'); return; }
+      else { bannerSection.classList.remove('hidden'); }
+
+      if (currentSlide >= activeBanners.length) currentSlide = 0;
+
+      slidesContainer.innerHTML = activeBanners.map((b, i) => `
+        <div class="absolute inset-0 transition-opacity duration-700 ease-in-out p-6 sm:p-10 flex items-center justify-between gap-6 bg-gradient-to-r ${b.bg || 'from-indigo-900 to-purple-950'} ${i === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}">
+          <div class="max-w-xl z-10">
+            <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-white mb-2 leading-tight">${b.title}</h2>
+            <p class="text-xs sm:text-sm text-white/85 mb-6 leading-relaxed line-clamp-2">${b.subtitle}</p>
+            <div>
+              <button onclick="scrollToCatalog()" class="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition shadow-lg flex items-center gap-2">
+                ${b.buttonText || 'Дивитися'} <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          ${b.image ? `<img src="${b.image}" class="hidden sm:block w-40 h-52 object-cover rounded-2xl shadow-2xl rotate-3 transform border-2 border-white/20">` : ''}
+        </div>
+      `).join('');
+
+      dotsContainer.innerHTML = activeBanners.map((_, i) => `
+        <button onclick="goToSlide(${i})" class="w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? 'bg-amber-400 w-6' : 'bg-white/40'}"></button>
+      `).join('');
+    }
+
+    function startCarouselTimer() {
+      clearInterval(slideTimer);
+      slideTimer = setInterval(() => nextSlide(), 6000);
+    }
+
+    function nextSlide() {
+      const activeBanners = banners.filter(b => b.active !== false);
+      if (!activeBanners.length) return;
+      currentSlide = (currentSlide + 1) % activeBanners.length;
+      renderCarousel();
+    }
+
+    function prevSlide() {
+      const activeBanners = banners.filter(b => b.active !== false);
+      if (!activeBanners.length) return;
+      currentSlide = (currentSlide - 1 + activeBanners.length) % activeBanners.length;
+      renderCarousel();
+    }
+
+    function goToSlide(i) { currentSlide = i; renderCarousel(); startCarouselTimer(); }
+    function toggleMobileFilters() { document.getElementById('desktopFilters').classList.toggle('hidden'); document.getElementById('mobileFiltersChevron').classList.toggle('rotate-180'); }
+
+    function handleSearchInput(val) {
+      const autosuggest = document.getElementById('searchAutosuggest');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      const query = val.toLowerCase().trim();
+      if (query.length > 0) clearBtn.classList.remove('hidden'); else clearBtn.classList.add('hidden');
+      if (query.length < 2) { autosuggest.classList.add('hidden'); renderBooks(); return; }
+      const matches = books.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query) || (b.category||'').toLowerCase().includes(query) || (b.desc||'').toLowerCase().includes(query)).slice(0, 5);
+      autosuggest.innerHTML = matches.length ? matches.map(b => `
+        <div onclick="openBookModal(${b.id}); closeAutosuggest();" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer flex items-center gap-3 transition">
+          <img src="${b.image}" class="w-8 h-10 object-cover rounded">
+          <div class="flex-1 min-w-0"><h4 class="text-xs font-bold truncate text-slate-900 dark:text-white">${b.title}</h4><p class="text-[10px] text-slate-500">${b.author}</p></div>
+          <span class="text-xs font-bold text-indigo-600 dark:text-amber-400">${getFinalPrice(b).toFixed(2)} zł</span>
+        </div>`).join('') : `<div class="p-4 text-xs text-slate-400 text-center">Нічого не знайдено</div>`;
+      autosuggest.classList.remove('hidden');
+      renderBooks();
+    }
+
+    function clearSearch() { document.getElementById('searchInput').value = ''; document.getElementById('clearSearchBtn').classList.add('hidden'); document.getElementById('searchAutosuggest').classList.add('hidden'); renderBooks(); }
+    function closeAutosuggest() { document.getElementById('searchAutosuggest').classList.add('hidden'); }
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+      if (document.getElementById('lblAdvancedFilters')) document.getElementById('lblAdvancedFilters').innerText = t.lblAdvancedFilters;
+      if (document.getElementById('telegramMessageText')) document.getElementById('telegramMessageText').innerText = t.telegramMessage;
+      if (document.getElementById('lblOrderComment')) document.getElementById('lblOrderComment').innerText = t.lblOrderComment;
+      if (document.getElementById('lblQuickOrderComment')) document.getElementById('lblQuickOrderComment').innerText = t.lblOrderComment;
+      if (document.getElementById('lblImageHint')) document.getElementById('lblImageHint').innerText = t.lblImageHint;
+      document.getElementById('adminBtnText').innerText = isAdmin ? t.toShopText : t.adminBtnText;
+      document.getElementById('optDefault').innerText = t.optDefault;
+      document.getElementById('optDefaultOpt').innerText = t.optDefault;
+      document.getElementById('optPriceAsc').innerText = t.optPriceAsc;
+      document.getElementById('optPriceDesc').innerText = t.optPriceDesc;
+      document.getElementById('optDiscount').innerText = t.optDiscount;
+      document.getElementById('optRatingDesc').innerText = t.optRatingDesc;
+      if (document.getElementById('lblMaxPrice')) document.getElementById('lblMaxPrice').innerText = t.lblMaxPrice;
+      if (document.getElementById('lblPriceRange')) document.getElementById('lblPriceRange').innerText = t.lblPriceRange;
+      if (document.getElementById('lblPriceFrom')) document.getElementById('lblPriceFrom').innerText = t.lblPriceFrom;
+      if (document.getElementById('lblPriceTo')) document.getElementById('lblPriceTo').innerText = t.lblPriceTo;
+      document.getElementById('lblMinRating').innerText = t.lblMinRating;
+      document.getElementById('optAllRatings').innerText = t.optAllRatings;
+      document.getElementById('lblLangFilter').innerText = t.lblLangFilter;
+      document.getElementById('optAllBookLangs').innerText = t.optAllBookLangs;
+      document.getElementById('lblAvailability').innerText = t.lblAvailability;
+      document.getElementById('optAllStock').innerText = t.optAllStock;
+      document.getElementById('optInStock').innerText = t.optInStock;
+      document.getElementById('optOnOrder').innerText = t.optOnOrder;
+      document.getElementById('lblQuickTags').innerText = t.lblQuickTags;
+      document.getElementById('lblTagAll').innerText = t.lblTagAll;
+      document.getElementById('lblTagBestseller').innerText = t.lblTagBestseller;
+      document.getElementById('lblTagNew').innerText = t.lblTagNew;
+      document.getElementById('lblTagSale').innerText = t.lblTagSale;
+      document.getElementById('adminTitle').innerText = t.adminTitle;
+      document.getElementById('exportJsonBtnText').innerText = t.exportJsonBtnText;
+      document.getElementById('addBookBtnText').innerText = t.addBookBtnText;
+      document.getElementById('thAdminPrice').innerText = t.thPrice;
+      document.getElementById('thAdminDiscount').innerText = t.thDiscount;
+      document.getElementById('thAdminTag').innerText = t.thTag;
+      document.getElementById('thAdminActions').innerText = t.thActions;
+      document.getElementById('lblBookTag').innerText = t.lblBookTag;
+      document.querySelector('#newTag option[value=""]').innerText = t.tagNone;
+      document.querySelector('#newTag option[value="bestseller"]').innerText = t.tagBestseller;
+      document.querySelector('#newTag option[value="new"]').innerText = t.tagNew;
+      document.querySelector('#newTag option[value="sale"]').innerText = t.tagSale;
+      document.getElementById('cartHeading').innerText = t.cartHeading;
+      document.getElementById('cartTotalLabel').innerText = t.cartTotalLabel;
+      document.getElementById('checkoutBtn').innerText = t.checkoutBtn;
+      document.getElementById('wishlistModalTitle').innerText = t.wishlistModalTitle;
+      document.getElementById('checkoutModalTitle').innerText = t.checkoutModalTitle;
+      document.getElementById('lblCustomerName').innerText = t.lblCustomerName;
+      document.getElementById('lblCustomerEmail').innerText = t.lblCustomerEmail;
+      document.getElementById('lblCustomerPhone').innerText = t.lblCustomerPhone;
+      document.getElementById('lblShippingMethod').innerText = t.lblShippingMethod;
+      document.getElementById('lblPaymentMethod').innerText = t.lblPaymentMethod;
+      document.getElementById('optPayBlik').innerText = t.optPayBlik;
+      document.getElementById('optPayCash').innerText = t.optPayCash;
+      document.getElementById('confirmOrderBtn').innerText = t.confirmOrderBtn;
+      document.getElementById('quickBuyModalTitle').innerText = t.quickBuyModalTitle;
+      document.getElementById('lblQuickBuyName').innerText = t.lblQuickBuyName;
+      document.getElementById('lblQuickBuyEmail').innerText = t.lblQuickBuyEmail;
+      document.getElementById('lblQuickBuyPhone').innerText = t.lblQuickBuyPhone;
+      document.getElementById('lblQuickBuyShipping').innerText = t.lblQuickBuyShipping;
+      document.getElementById('lblQuickBuyPayment').innerText = t.lblQuickBuyPayment;
+      document.getElementById('btnQuickBuyConfirm').innerText = t.btnQuickBuyConfirm;
+      document.getElementById('lblOrdersHistoryTitle').innerText = t.lblOrdersHistoryTitle;
+      document.getElementById('statOrdersLbl').innerText = t.statOrdersLbl;
+      document.getElementById('statTodayOrdersLbl').innerText = t.statTodayOrdersLbl;
+      document.getElementById('footerBrandDesc').innerText = t.footerBrandDesc;
+      document.getElementById('footerNavTitle').innerText = t.footerNavTitle;
+      document.getElementById('footerNavHome').innerText = t.footerNavHome;
+      document.getElementById('footerNavCatalog').innerText = t.footerNavCatalog;
+      document.getElementById('footerNavWishlist').innerText = t.footerNavWishlist;
+      document.getElementById('footerNavCart').innerText = t.footerNavCart;
+      document.getElementById('footerContactsTitle').innerText = t.footerContactsTitle;
+      document.getElementById('footerPaymentInfo').innerText = t.footerPaymentInfo;
+      document.getElementById('footerRights').innerText = t.footerRights;
+      renderCategories();
+      renderBooks();
+      updateCart();
+      updateWishlist();
+    }
+
+    function translateGenre(genreKey) { return genreTranslations[genreKey]?.[currentLang] || genreKey; }
+    function updatePriceLabel() { return; }
+    function getFinalPrice(book) { return book.isOnOrder ? 0 : Number((book.price * (1 - book.discount / 100)).toFixed(2)); }
+
+    function setTagFilter(tag) {
+      currentTag = tag;
+      document.querySelectorAll('.tag-btn').forEach(btn => btn.className = 'tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-sm bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200');
+      const activeBtn = document.getElementById(`tag-${tag}`);
+      if (activeBtn) activeBtn.className = 'tag-btn px-3 py-1.5 rounded-xl font-bold transition shadow-md bg-indigo-600 text-white dark:bg-amber-400 dark:text-slate-950 scale-105';
+      renderBooks();
+    }
+
+    function getMasterGenresList() {
+      const predefined = Object.keys(genreTranslations);
+      return [...new Set([...predefined, ...books.map(b => b.category)])];
+    }
+
+    function renderCategories() {
+      const t = translations[currentLang];
+      const masterGenres = ['all', ...getMasterGenresList()];
+      const popularGenres = ['all', 'Фантастика', 'Класика', 'Развиток', 'Фентезі', 'Детективи'];
+
+      document.getElementById('categoriesList').innerHTML = popularGenres.map(cat => `
+        <button onclick="filterCategory('${cat}')" class="px-4 py-2 text-xs font-bold rounded-2xl border transition whitespace-nowrap ${currentCategory === cat ? 'bg-indigo-600 text-white dark:bg-amber-400 dark:text-slate-950 shadow-md' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}">
+          ${cat === 'all' ? t.allCategories : translateGenre(cat)}
+        </button>`).join('');
+
+      document.getElementById('allGenresDropdown').innerHTML = `<option value="all">${t.lblAllGenresDropdown}</option>` + 
+        masterGenres.filter(g => g !== 'all').map(g => `<option value="${g}" ${currentCategory === g ? 'selected' : ''}>${translateGenre(g)}</option>`).join('');
+    }
+
+    function filterCategory(cat) { currentCategory = cat; currentPage = 1; renderCategories(); renderBooks(); }
+
+    function handleShippingChange(val) {
+      const t = translations[currentLang];
+      const container = document.getElementById('shippingDetailsContainer');
+      container.innerHTML = `<label class="text-xs font-bold block mb-1">${val === 'dhl' ? t.dhlLabel : val === 'novaposhta' ? t.novaposhtaLabel : t.inpostLabel}</label><input type="text" id="custShippingDetails" required placeholder="Details..." class="w-full p-2.5 border dark:border-slate-700 dark:bg-slate-700 rounded-xl text-xs outline-none">`;
+    }
+
+    function renderFeaturedBooks() {
+      const box = document.getElementById('featuredGrid'); if (!box) return;
+      const picks = [...books].sort((a,b) => ((b.tag === 'bestseller') - (a.tag === 'bestseller')) || (b.rating - a.rating)).slice(0,4);
+      box.innerHTML = picks.map(b => `<button onclick="openBookModal(${b.id})" class="text-left bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-lg transition group"><div class="relative"><img src="${b.image}" class="w-full book-card-image object-cover group-hover:scale-[1.03] transition"><div class="absolute top-2 left-2 flex gap-1">${b.discount>0?`<span class="bg-rose-600 text-white text-[9px] font-black px-2 py-1 rounded-full">-${b.discount}%</span>`:''}${b.tag==='bestseller'?`<span class="bg-slate-950/70 text-white text-[9px] font-black px-2 py-1 rounded-full">ХІТ</span>`:''}</div></div><div class="p-3"><div class="text-[10px] text-indigo-600 dark:text-amber-400 font-bold">★ ${Number(b.rating||0).toFixed(1)}</div><div class="font-black text-xs mt-1 truncate">${b.title}</div><div class="text-[10px] text-slate-400 truncate">${b.author}</div><div class="mt-2 font-black text-sm">${getFinalPrice(b).toFixed(2)} zł</div></div></button>`).join('');
+    }
+
+    function renderBooks() {
+      const t = translations[currentLang];
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const sort = document.getElementById('sortSelect').value;
+      const minPrice = parseFloat(document.getElementById('priceFrom')?.value) || 0;
+      const maxPrice = parseFloat(document.getElementById('priceTo')?.value) || 10000;
+      const minRating = parseFloat(document.getElementById('ratingFilter').value);
+      const availability = document.getElementById('availabilityFilter')?.value || 'all';
+      const langFilter = document.getElementById('bookLangFilter')?.value || 'all';
+
+      let filtered = books.filter(b => {
+        const finalPrice = getFinalPrice(b);
+        return (currentCategory === 'all' || b.category === currentCategory) &&
+               (currentTag === 'all' || (currentTag === 'sale' ? b.discount > 0 : b.tag === currentTag)) &&
+               (b.title.toLowerCase().includes(search) || b.author.toLowerCase().includes(search) || (b.code && b.code.toLowerCase().includes(search))) &&
+               (b.isOnOrder || (finalPrice >= minPrice && finalPrice <= maxPrice)) &&
+               b.rating >= minRating &&
+               (langFilter === 'all' || b.lang === langFilter) &&
+               (availability === 'all' || (availability === 'in-stock' ? !b.isOnOrder : b.isOnOrder));
+      });
+
+      if (sort === 'price-asc') filtered.sort((a,b) => getFinalPrice(a) - getFinalPrice(b));
+      if (sort === 'price-desc') filtered.sort((a,b) => getFinalPrice(b) - getFinalPrice(a));
+      if (sort === 'discount') filtered.sort((a,b) => b.discount - a.discount);
+      if (sort === 'rating-desc') filtered.sort((a,b) => b.rating - a.rating);
+
+      const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+      if (currentPage > totalPages) currentPage = 1;
+      const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+      document.getElementById('booksGrid').innerHTML = paginated.map(b => `
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col relative group border border-slate-200/80 dark:border-slate-700/80">
+          <div class="absolute top-3 left-3 z-10 flex flex-col gap-1">
+            <span class="${b.condition === 'used' ? 'bg-amber-600' : 'bg-emerald-600'} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">${b.condition === 'used' ? t.condUsed : t.condNew}</span>
+            <span class="bg-slate-900/60 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">${b.lang || 'UA'}</span>
+            ${!b.isOnOrder && Number(b.stock ?? 10) <= 3 ? `<span class="bg-amber-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Залишилось ${b.stock}</span>` : ''}${b.discount > 0 && !b.isOnOrder ? `<span class="bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">-${b.discount}%</span>` : ''}
+          </div>
+          <button onclick="toggleWishlist(${b.id})" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/80 dark:bg-slate-900/80 flex items-center justify-center text-rose-500 shadow"><i class="${wishlist.includes(b.id) ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
+          <div class="relative overflow-hidden bg-slate-100 dark:bg-slate-700/40">
+            <img src="${b.image}" class="h-56 w-full object-cover group-hover:scale-105 transition duration-500 cursor-pointer" onclick="openBookModal(${b.id})">
+            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition flex justify-center gap-2">
+              <button onclick="openQuickBuyModal(${b.id})" class="bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs shadow"><i class="fa-solid fa-bolt"></i> ${t.quickClickBtnText}</button>
+            </div>
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between"><span class="text-[11px] text-indigo-600 dark:text-amber-400 font-bold uppercase">${translateGenre(b.category)}</span><span class="text-xs font-bold text-amber-500">★ ${b.rating.toFixed(1)}</span></div>
+              <h3 class="font-bold text-slate-900 dark:text-white mt-1 cursor-pointer line-clamp-1" onclick="openBookModal(${b.id})">${b.title}</h3>
+              <p class="text-xs text-slate-500 line-clamp-1">${b.author}</p>
+            </div>
+            <div class="mt-4 flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
+              <div>${b.isOnOrder ? `<span class="text-[10px] font-extrabold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">${t.onOrderStatus}</span>` : `<div>${b.discount > 0 && !b.isOnOrder ? `<div class="text-[11px] text-slate-400 line-through">${b.price.toFixed(2)} zł</div>` : ''}<div class="text-base font-black text-slate-900 dark:text-white">${getFinalPrice(b).toFixed(2)} zł</div></div>`}</div>
+              <button onclick="addToCart(${b.id})" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-amber-400 dark:text-slate-950 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow"><i class="fa-solid fa-cart-plus"></i> ${t.addToCart}</button>
+            </div>
+          </div>
+        </div>`).join('');
+
+      renderFeaturedBooks();
+      document.getElementById('pagination').innerHTML = totalPages <= 1 ? '' : Array.from({length: totalPages}, (_, i) => i + 1).map(i => `
+        <button onclick="goToPage(${i})" class="w-8 h-8 text-xs font-bold rounded-xl border transition ${currentPage === i ? 'bg-indigo-600 text-white dark:bg-amber-400 dark:text-slate-950' : 'bg-white dark:bg-slate-800'}">${i}</button>`).join('');
+    }
+
+    function goToPage(page) { currentPage = page; renderBooks(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    function openQuickBuyModal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+      document.getElementById('quickBuyBookId').value = book.id;
+      document.getElementById('quickBuyItemPreview').innerHTML = `<img src="${book.image}" class="w-10 h-14 object-cover rounded-lg"><div><h4 class="font-bold text-xs">${book.title}</h4><p class="text-[10px] text-slate-500">${book.author}</p><p class="text-xs font-black text-indigo-600 dark:text-amber-400">${getFinalPrice(book).toFixed(2)} zł</p></div>`;
+      document.getElementById('quickBuyModal').classList.remove('hidden');
+    }
+    function closeQuickBuyModal() { document.getElementById('quickBuyModal').classList.add('hidden'); }
+
+    function handleQuickBuySubmit(e) {
+      e.preventDefault();
+      const t = translations[currentLang];
+      const book = books.find(b => b.id === Number(document.getElementById('quickBuyBookId').value));
+      const now = new Date();
+      const timeStr = `${now.toLocaleDateString()} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      const newOrder = {
+        id: Date.now(),
+        date: timeStr,
+        customer: document.getElementById('quickBuyName').value,
+        email: document.getElementById('quickBuyEmail').value,
+        phone: document.getElementById('quickBuyPhone').value,
+        shipping: document.getElementById('quickBuyShipping').value,
+        details: document.getElementById('quickBuyShippingDetails').value,
+        payment: document.getElementById('quickBuyPayment').value,
+        items: [{ title: book.title, code: book.code || 'N/A', qty: 1, price: getFinalPrice(book) }],
+        total: getFinalPrice(book),
+        type: '1-Click',
+        status: 'new',
+        comment: document.getElementById('quickBuyOrderComment')?.value.trim() || ''
+      };
+
+      userOrders.unshift(newOrder);
+      saveOrdersToStorage();
+      sendOrderNotification(newOrder);
+      showToast(t.orderSuccessMsg);
+      document.getElementById('quickBuyOrderComment').value = '';
+      closeQuickBuyModal();
+    }
+
+    function openOrdersModal() {
+      const t = translations[currentLang];
+      document.getElementById('userOrdersList').innerHTML = userOrders.length ? userOrders.map(o => `
+        <div class="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-2xl text-xs space-y-2 border dark:border-slate-600">
+          <div class="flex justify-between font-bold"><span>Замовлення #${o.id.toString().slice(-4)}</span><span class="text-slate-400 font-normal">${o.date}</span></div><div class="text-[10px] font-bold text-indigo-600 dark:text-amber-400 uppercase">${o.status||'new'}</div>
+          <div class="text-slate-500">Доставка: <span class="uppercase text-indigo-600 dark:text-amber-400">${o.shipping}</span> (${o.details})</div>
+          <div class="text-slate-600 dark:text-slate-300">${o.items.map(i => `<div>• ${i.title} (x${i.qty}) -${i.price.toFixed(2)} zł</div>`).join('')}</div>${o.comment ? `<div class="mt-2 text-amber-700 dark:text-amber-300"><i class="fa-regular fa-comment-dots mr-1"></i>${o.comment}</div>` : ''}
+          <div class="flex justify-between items-center pt-2 border-t dark:border-slate-600 font-bold"><span>Разом:</span><span class="text-indigo-600 dark:text-amber-400 font-black">${o.total.toFixed(2)} zł</span></div>
+        </div>`).join('') : `<p class="text-center text-slate-400 text-xs py-8">${t.noOrdersHistory}</p>`;
+      document.getElementById('ordersModal').classList.remove('hidden');
+    }
+    function closeOrdersModal() { document.getElementById('ordersModal').classList.add('hidden'); }
+
+    function getBookImages(book) {
+      const imgs = Array.isArray(book.images) && book.images.length ? book.images : [book.image].filter(Boolean);
+      return imgs.length ? imgs : ['https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400'];
+    }
+    let bookGalleryState = { id: null, index: 0, startX: 0 };
+    function renderBookGallery(book) {
+      const imgs = getBookImages(book);
+      const idx = Math.max(0, Math.min(bookGalleryState.index, imgs.length - 1));
+      bookGalleryState.index = idx;
+      const box = document.getElementById('bookGallery');
+      if (!box) return;
+      box.innerHTML = `<div class="relative"><img src="${imgs[idx]}" class="w-full sm:w-48 h-64 object-cover rounded-2xl shadow-md select-none" draggable="false" onerror="this.style.opacity='0.4'">${imgs.length > 1 ? `<button type="button" aria-label="Previous photo" onclick="changeBookGallery(-1)" class="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/60 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button><button type="button" aria-label="Next photo" onclick="changeBookGallery(1)" class="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-slate-950/60 text-white flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>` : ''}<div class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-slate-950/60 text-white text-[10px] font-bold px-2 py-1 rounded-full">${idx + 1} / ${imgs.length}</div></div>${imgs.length>1?`<div class="flex gap-2 mt-2 overflow-x-auto">${imgs.map((im,i)=>`<button type="button" onclick="bookGalleryState.index=${i}; renderBookGallery(books.find(b=>b.id===${book.id}))" class="shrink-0 rounded-lg overflow-hidden border-2 ${i===idx?'border-indigo-500':'border-transparent'}"><img src="${im}" class="w-10 h-12 object-cover"></button>`).join('')}</div>`:''}`;
+    }
+    function changeBookGallery(delta) {
+      const book = books.find(b => b.id === bookGalleryState.id);
+      if (!book) return;
+      const imgs = getBookImages(book);
+      bookGalleryState.index = (bookGalleryState.index + delta + imgs.length) % imgs.length;
+      renderBookGallery(book);
+    }
+    function handleBookGalleryTouchStart(e) { bookGalleryState.startX = e.touches[0].clientX; }
+    function handleBookGalleryTouchEnd(e) { const dx = e.changedTouches[0].clientX - bookGalleryState.startX; if (Math.abs(dx) > 40) changeBookGallery(dx < 0 ? 1 : -1); }
+
+    function openBookModal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+      if (!book.reviews) book.reviews = [];
+      const t = translations[currentLang];
+      document.getElementById('bookModalContent').innerHTML = `
+        <button onclick="closeBookModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <div class="flex flex-col sm:flex-row gap-6">
+          <div id="bookGallery" class="relative w-full sm:w-48 shrink-0" ontouchstart="handleBookGalleryTouchStart(event)" ontouchend="handleBookGalleryTouchEnd(event)"></div>
+          <div class="flex-1 flex flex-col justify-between">
+            <div>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-1">${book.title}</h2>
+              <p class="text-sm text-slate-500 mb-2">${book.author}</p>
+              <div class="flex items-center gap-1 text-amber-500 text-sm mb-4"><i class="fa-solid fa-star"></i><span class="font-bold">${book.rating.toFixed(1)}</span></div>
+              <p class="text-xs text-slate-600 dark:text-slate-300">${book.desc}</p>
+            </div>
+            <div class="mt-4 flex items-center justify-between border-t dark:border-slate-700 pt-4">
+              <div>${book.discount > 0 && !book.isOnOrder ? `<div class="flex items-center gap-2"><span class="text-xs text-slate-400 line-through">${book.price.toFixed(2)} zł</span><span class="text-xs font-black bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 px-2 py-1 rounded-full">-${book.discount}%</span></div>` : ''}<div class="text-2xl font-black text-slate-900 dark:text-white">${getFinalPrice(book).toFixed(2)} zł</div></div>
+              <button onclick="addToCart(${book.id}); closeBookModal();" class="bg-indigo-600 dark:bg-amber-400 text-white dark:text-slate-950 px-5 py-2.5 rounded-2xl text-xs font-bold shadow">${t.addToCart}</button>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 pt-5 border-t dark:border-slate-700">
+          <div class="flex items-center justify-between mb-3"><h3 class="font-black text-sm">${t.reviewsHeading}</h3><button onclick="openReviewModal(${book.id})" class="text-[10px] font-bold text-indigo-600 dark:text-amber-400">${t.addReviewBtn}</button></div>
+          <div class="space-y-2 max-h-48 overflow-y-auto">${book.reviews.length ? book.reviews.map(r => `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50"><div class="flex justify-between"><span class="text-xs font-bold">${r.name}</span><span class="text-amber-500 text-xs">${'★'.repeat(Number(r.rating))}</span></div><p class="text-[11px] text-slate-500 dark:text-slate-300 mt-1">${r.comment}</p></div>`).join('') : `<p class="text-xs text-slate-400">${t.noReviewsYet}</p>`}</div>
+        </div>`;
+      bookGalleryState = { id: book.id, index: 0, startX: 0 };
+      document.getElementById('bookModal').classList.remove('hidden');
+      renderBookGallery(book);
+    }
+    function closeBookModal() { document.getElementById('bookModal').classList.add('hidden'); }
+
+    function openReviewModal(id) { document.getElementById('reviewBookId').value=id; document.getElementById('reviewName').value=''; document.getElementById('reviewComment').value=''; document.getElementById('reviewModal').classList.remove('hidden'); }
+    function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); }
+    function handleReviewSubmit(e) { e.preventDefault(); const id=Number(document.getElementById('reviewBookId').value); const b=books.find(x=>x.id===id); if(!b)return; if(!b.reviews)b.reviews=[]; b.reviews.push({name:document.getElementById('reviewName').value.trim(),rating:Number(document.getElementById('reviewRating').value),comment:document.getElementById('reviewComment').value.trim(),date:new Date().toISOString()}); b.rating=Number((b.reviews.reduce((s,r)=>s+r.rating,0)/b.reviews.length).toFixed(1)); saveBooksToStorage(); closeReviewModal(); renderBooks(); renderAdminTable(); showToast(translations[currentLang].reviewSuccess); openBookModal(id); }
+
+    function toggleWishlist(id) {
+      const book = books.find(b => b.id === id);
+      const t = translations[currentLang];
+      if (wishlist.includes(id)) { wishlist = wishlist.filter(i => i !== id); showToast(`«${book.title}» ${t.removedFromWishlist}`); }
+      else { wishlist.push(id); showToast(`«${book.title}» ${t.addedToWishlist}`); }
+      saveWishlistToStorage(); updateWishlist(); renderBooks();
+    }
+
+    function updateWishlist() {
+      document.getElementById('wishlistCount').innerText = wishlist.length;
+      document.getElementById('wishlistItems').innerHTML = wishlist.length ? wishlist.map(id => {
+        const book = books.find(b => b.id === id);
+        return `<div class="flex items-center gap-3 border-b dark:border-slate-700 pb-3"><img src="${book.image}" class="w-10 h-14 object-cover rounded-lg"><div class="flex-1 min-w-0"><h4 class="font-bold text-xs truncate">${book.title}</h4>${book.discount>0?`<div class="text-[10px] text-rose-500 font-bold">-${book.discount}% · ${price.toFixed(2)} zł</div>`:''}</div><button onclick="toggleWishlist(${book.id})" class="text-rose-500 p-2"><i class="fa-solid fa-trash"></i></button></div>`;
+      }).join('') : `<p class="text-center text-slate-400 text-xs py-8">${translations[currentLang].wishlistEmpty}</p>`;
+    }
+    function toggleWishlistModal() { document.getElementById('wishlistModal').classList.toggle('hidden'); }
+
+    function addToCart(id) {
+      const book = books.find(b => b.id === id);
+      const item = cart.find(i => i.id === id);
+      if (item) item.qty++; else cart.push({ id, qty: 1 });
+      saveCartToStorage(); updateCart(); showToast(`«${book.title}» ${translations[currentLang].addedToCartToast}`);
+    }
+
+    function updateCart() {
+      const t = translations[currentLang];
+      document.getElementById('cartCount').innerText = cart.reduce((acc, i) => acc + i.qty, 0);
+      let total = 0;
+      document.getElementById('cartItems').innerHTML = cart.length ? cart.map(i => {
+        const book = books.find(b => b.id === i.id);
+        const price = getFinalPrice(book);
+        total += price * i.qty;
+        return `<div class="flex items-center gap-3 border-b dark:border-slate-700 pb-3"><img src="${book.image}" class="w-10 h-14 object-cover rounded-lg"><div class="flex-1 min-w-0"><h4 class="font-bold text-xs truncate">${book.title}</h4></div><div class="flex items-center border rounded-xl"><button onclick="changeQty(${book.id}, -1)" class="px-2 py-1">-</button><span class="px-2 text-xs font-bold">${i.qty}</span><button onclick="changeQty(${book.id}, 1)" class="px-2 py-1">+</button></div></div>`;
+      }).join('') : `<p class="text-center text-slate-400 text-xs py-8">${t.cartEmpty}</p>`;
+      document.getElementById('cartTotal').innerText = `${total.toFixed(2)} zł`;
+    }
+
+    function changeQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+      saveCartToStorage(); updateCart();
+    }
+    function toggleCart() { document.getElementById('cartDrawer').classList.toggle('hidden'); }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'H' || e.key === 'h')) { e.preventDefault(); if (isAdmin || isAdminAuthenticated) toggleAdminView(); else openAdminAuthModal(); }
+    });
+
+    function openAdminAuthModal() { document.getElementById('adminPasswordInput').value = ''; document.getElementById('adminAuthModal').classList.remove('hidden'); }
+    function closeAdminAuthModal() { document.getElementById('adminAuthModal').classList.add('hidden'); }
+
+    function handleAdminAuth(e) {
+      e.preventDefault();
+      if (document.getElementById('adminPasswordInput').value === ADMIN_PASSWORD) {
+        isAdminAuthenticated = true; closeAdminAuthModal(); document.getElementById('adminBtn').classList.remove('hidden'); toggleAdminView(); showToast("Авторизовано!");
+      } else { showToast("Невірний пароль!"); }
+    }
+
+    function toggleAdminView() {
+      if (!isAdminAuthenticated && !isAdmin) { openAdminAuthModal(); return; }
+      isAdmin = !isAdmin;
+      document.getElementById('userView').classList.toggle('hidden', isAdmin);
+      document.getElementById('adminView').classList.toggle('hidden', !isAdmin);
+      document.getElementById('adminBtnText').innerText = isAdmin ? translations[currentLang].toShopText : translations[currentLang].adminBtnText;
+      if (isAdmin) { renderAdminTable(); updateAdminStats(); renderAdminBanners(); renderAdminOrders(); renderAdminReviews(); }
+    }
+
+    function switchAdminTab(tab) {
+      ['dashboard', 'books', 'banners', 'reviews', 'orders'].forEach(t => {
+        document.getElementById(`adminTab-${t}`).classList.add('hidden');
+        document.getElementById(`adminTabBtn-${t}`).className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800';
+      });
+      document.getElementById(`adminTab-${tab}`).classList.remove('hidden');
+      document.getElementById(`adminTabBtn-${tab}`).className = 'pb-3 border-b-2 border-indigo-600 dark:border-amber-400 text-indigo-600 dark:text-amber-400 font-bold';
+    }
+
+    function renderAdminTable() {
+      const filter = document.getElementById('adminSearchInput')?.value.toLowerCase() || '';
+      document.getElementById('adminBooksTable').innerHTML = books.filter(b => b.title.toLowerCase().includes(filter) || (b.code && b.code.toLowerCase().includes(filter))).map(b => `
+        <tr>
+          <td class="p-4"><img src="${b.image}" class="w-8 h-12 object-cover rounded"></td>
+          <td class="p-4 font-bold text-indigo-600 dark:text-amber-400">${b.code || 'N/A'}</td>
+          <td class="p-4 font-bold">${b.title}<br><span class="text-[10px] text-slate-400 font-normal">${b.author}</span></td>
+          <td class="p-4">${translateGenre(b.category)}</td>
+          <td class="p-4">${b.condition === 'used' ? 'Б/У' : 'Нова'}</td>
+          <td class="p-4 uppercase">${b.lang || 'UA'}</td>
+          <td class="p-4 font-bold">${b.isOnOrder ? 'Під замовлення' : `${b.price.toFixed(2)} zł`}</td><td class="p-4">${b.isOnOrder ? '∞' : (b.stock ?? '—')}</td>
+          <td class="p-4">${b.discount > 0 && !b.isOnOrder ? `<span class="inline-flex items-center bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 px-2 py-1 rounded-full font-black">-${b.discount}%</span>` : '<span class="text-slate-400">—</span>'}</td>
+          <td class="p-4">${b.tag ? `<span class="inline-flex items-center px-2 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-bold text-[10px]">${b.tag === 'bestseller' ? translations[currentLang].tagBestseller : b.tag === 'new' ? translations[currentLang].tagNew : b.tag === 'sale' ? translations[currentLang].tagSale : b.tag}</span>` : '<span class="text-slate-400">—</span>'}</td>
+          <td class="p-4 flex gap-2"><button onclick="openEditBookModal(${b.id})" class="text-indigo-600 font-bold">Редагувати</button><button onclick="deleteBook(${b.id})" class="text-rose-500 font-bold">Видалити</button></td>
+        </tr>`).join('');
+    }
+
+    function openAddBannerModal() {
+      const modal = document.getElementById('addBannerModal');
+      if (!modal) return;
+      document.getElementById('bannerTitle').value = '';
+      document.getElementById('bannerSubtitle').value = '';
+      document.getElementById('bannerImage').value = '';
+      document.getElementById('bannerBtnText').value = 'Дивитися';
+      modal.classList.remove('hidden');
+    }
+
+    function closeAddBannerModal() {
+      const modal = document.getElementById('addBannerModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function handleSaveBanner(event) {
+      event.preventDefault();
+      const title = document.getElementById('bannerTitle').value.trim();
+      const subtitle = document.getElementById('bannerSubtitle').value.trim();
+      const image = document.getElementById('bannerImage').value.trim();
+      const buttonText = document.getElementById('bannerBtnText').value.trim() || 'Дивитися';
+      if (!title || !subtitle || !image) return;
+
+      const newBanner = {
+        id: Date.now(),
+        title,
+        subtitle,
+        bg: 'from-indigo-600 to-purple-800',
+        image,
+        buttonText,
+        active: true
+      };
+
+      banners.push(newBanner);
+      saveBannersToStorage();
+      currentSlide = banners.length - 1;
+      renderAdminBanners();
+      renderCarousel();
+      startCarouselTimer();
+      closeAddBannerModal();
+    }
+
+    function renderAdminBanners() {
+      const list = document.getElementById('adminBannersList');
+      if (!list) return;
+      list.innerHTML = banners.length ? banners.map(b => `
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border dark:border-slate-700 flex justify-between items-center gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            ${b.image ? `<img src="${b.image}" class="w-20 h-12 object-cover rounded-lg shrink-0" onerror="this.style.display='none'">` : ''}
+            <div class="min-w-0"><h4 class="font-bold text-sm truncate">${b.title}</h4><p class="text-xs text-slate-400 line-clamp-2">${b.subtitle}</p></div>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <button onclick="toggleBanner(${b.id})" class="text-xs font-bold ${b.active !== false ? 'text-emerald-600' : 'text-slate-400'}" title="${b.active !== false ? 'Выключить' : 'Включить'}">${b.active !== false ? 'Включен' : 'Выключен'}</button>
+            <button onclick="deleteBanner(${b.id})" class="text-rose-500 font-bold text-xs" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </div>`).join('') : `<p class="text-xs text-slate-400 text-center py-4">Баннеров пока нет</p>`;
+    }
+
+    function renderAdminReviews() { const list=document.getElementById('adminReviewsList'); if(!list)return; const rows=[]; books.forEach(b=>(b.reviews||[]).forEach((r,i)=>rows.push({book:b,r,index:i}))); const count=document.getElementById('adminReviewsCount'); if(count)count.innerText=`${rows.length} відгуків`; list.innerHTML=rows.length?rows.reverse().map(x=>`<div class="p-4 rounded-2xl border dark:border-slate-700 bg-slate-50 dark:bg-slate-700/40"><div class="flex justify-between gap-3"><div><b class="text-xs">${x.r.name}</b><div class="text-[10px] text-indigo-600 dark:text-amber-400">${x.book.title}</div></div><span class="text-amber-500 text-xs">${'★'.repeat(Number(x.r.rating))}</span></div><p class="text-xs text-slate-600 dark:text-slate-300 mt-2">${x.r.comment}</p><button onclick="deleteReview(${x.book.id},${x.index})" class="text-[10px] font-bold text-rose-500 mt-2">Видалити</button></div>`).join(''):'<p class="text-xs text-slate-400 text-center py-8">Відгуків поки немає</p>'; }
+    function deleteReview(bookId,index){ const b=books.find(x=>x.id===bookId); if(!b||!b.reviews)return; b.reviews.splice(index,1); b.rating=b.reviews.length?Number((b.reviews.reduce((s,r)=>s+r.rating,0)/b.reviews.length).toFixed(1)):5; saveBooksToStorage(); renderBooks(); renderAdminTable(); renderAdminReviews(); }
+
+    function renderAdminOrders() {
+      document.getElementById('adminOrdersList').innerHTML = userOrders.length ? userOrders.map(o => `
+        <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border dark:border-slate-700 text-xs space-y-1">
+          <div class="flex flex-wrap justify-between gap-2 font-bold"><span>Замовлення #${o.id} (${o.customer})</span><span class="text-indigo-600 dark:text-amber-400">${Number(o.total).toFixed(2)} zł</span></div><div class="flex items-center gap-2"><span class="text-[10px] text-slate-400">Статус:</span><select onchange="updateOrderStatus(${o.id},this.value)" class="status-pill bg-slate-100 dark:bg-slate-700 border-0"><option value="new" ${(o.status||'new')==='new'?'selected':''}>Нове</option><option value="confirmed" ${o.status==='confirmed'?'selected':''}>Підтверджено</option><option value="shipped" ${o.status==='shipped'?'selected':''}>Відправлено</option><option value="delivered" ${o.status==='delivered'?'selected':''}>Доставлено</option></select></div>
+          <p class="text-slate-400">Час замовлення: ${o.date}</p>
+          <p class="text-slate-500">Тел: ${o.phone} | Доставка (${o.shipping}): ${o.details}</p>
+          <div class="pt-1 text-slate-600 dark:text-slate-300 font-bold">${o.items.map(i => `<div>• [Код: ${i.code}] ${i.title} (x${i.qty})</div>`).join('')}</div>${o.comment ? `<div class="mt-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 font-semibold"><i class="fa-regular fa-comment-dots mr-1"></i>${o.comment}</div>` : ''}
+        </div>`).join('') : `<p class="text-xs text-slate-400 text-center py-4">Немає замовлень</p>`;
+    }
+
+    function updateAdminStats() {
+      const safe = id => document.getElementById(id);
+      if (safe('statOrdersCount')) safe('statOrdersCount').innerText = userOrders.length;
+      const todayStr = new Date().toLocaleDateString();
+      const todayCount = userOrders.filter(o => o.date.startsWith(todayStr)).length;
+      if (safe('statTodayOrdersCount')) safe('statTodayOrdersCount').innerText = todayCount;
+      if (safe('statBooksCount')) safe('statBooksCount').innerText = books.length;
+      if (safe('statRevenue')) safe('statRevenue').innerText = userOrders.reduce((s,o)=>s+Number(o.total||0),0).toFixed(2)+' zł';
+      if (safe('statDiscountBooks')) safe('statDiscountBooks').innerText = books.filter(b=>Number(b.discount)>0).length;
+      renderDashboard();
+      renderAdminReviews();
+    }
+
+    function renderDashboard() {
+      const ro=document.getElementById('dashboardRecentOrders'); const tb=document.getElementById('dashboardTopBooks');
+      if (ro) ro.innerHTML = userOrders.slice(0,5).map(o=>`<div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50"><div class="min-w-0"><div class="text-xs font-bold truncate">#${o.id} · ${o.customer}</div><div class="text-[10px] text-slate-400">${o.status||'new'} · ${o.date}</div></div><b class="text-xs">${Number(o.total).toFixed(2)} zł</b></div>`).join('') || '<p class="text-xs text-slate-400">Немає замовлень</p>';
+      if (tb) { const counts={}; userOrders.forEach(o=>o.items.forEach(i=>counts[i.title]=(counts[i.title]||0)+Number(i.qty||0))); const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5); tb.innerHTML=top.map(([title,q])=>`<div class="flex justify-between text-xs p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50"><span class="font-bold truncate pr-3">${title}</span><b>${q} шт.</b></div>`).join('')||'<p class="text-xs text-slate-400">Поки немає продажів</p>'; }
+    }
+
+    function exportOrdersCSV() {
+      const rows=[['ID','Date','Customer','Email','Phone','Shipping','Payment','Total','Status','Comment'],...userOrders.map(o=>[o.id,o.date,o.customer,o.email,o.phone,o.shipping,o.payment,o.total,o.status||'new',o.comment||''])];
+      const csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n'); const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv); a.download='orders.csv'; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    function updateOrderStatus(id,status){ const o=userOrders.find(x=>x.id===id); if(!o)return; o.status=status; saveOrdersToStorage(); renderAdminOrders(); updateAdminStats(); sendOrderNotification({...o, status}); }
+    function deleteBook(id) { books = books.filter(b => b.id !== id); saveBooksToStorage(); renderAdminTable(); updateAdminStats(); renderBooks(); }
+    function toggleBanner(id) {
+      banners = banners.map(b => b.id === id ? { ...b, active: b.active === false } : b);
+      saveBannersToStorage();
+      renderAdminBanners();
+      renderCarousel();
+    }
+    function deleteBanner(id) { banners = banners.filter(b => b.id !== id); saveBannersToStorage(); renderAdminBanners(); renderCarousel(); }
+    function exportBooksJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(books, null, 2));
+      const anchor = document.createElement('a'); anchor.setAttribute("href", dataStr); anchor.setAttribute("download", "books.json"); document.body.appendChild(anchor); anchor.click(); anchor.remove();
+    }
+
+    function togglePriceFields(isOnOrder) {
+      document.getElementById('priceFieldsGroup').classList.toggle('opacity-40', isOnOrder);
+      document.getElementById('priceFieldsGroup').classList.toggle('pointer-events-none', isOnOrder);
+    }
+
+    function populateCategorySelect(selected = '') {
+      const masterGenres = getMasterGenresList();
+      document.getElementById('newCategorySelect').innerHTML = masterGenres.map(cat => `<option value="${cat}">${translateGenre(cat)}</option>`).join('') + `<option value="__NEW__">${translations[currentLang].newCategoryOpt}</option>`;
+      if (selected) document.getElementById('newCategorySelect').value = selected;
+    }
+
+    function handleCategorySelectChange(val) { document.getElementById('newCategoryInput').classList.toggle('hidden', val !== '__NEW__'); }
+
+    function openAddBookModal() {
+      document.getElementById('addBookForm').reset();
+      document.getElementById('editingBookId').value = '';
+      document.getElementById('newTag').value = '';
+      document.getElementById('newStock').value = 10;
+      populateCategorySelect();
+      document.getElementById('addBookModal').classList.remove('hidden');
+    }
+
+    function openEditBookModal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+      document.getElementById('editingBookId').value = book.id;
+      document.getElementById('newBookCode').value = book.code || '';
+      document.getElementById('newTitle').value = book.title;
+      document.getElementById('newAuthor').value = book.author;
+      document.getElementById('newLang').value = book.lang || 'UA';
+      document.getElementById('newCondition').value = book.condition || 'new';
+      document.getElementById('newPrice').value = book.price || '';
+      document.getElementById('newDiscount').value = book.discount || 0;
+      document.getElementById('newTag').value = book.tag || '';
+      document.getElementById('newRating').value = book.rating;
+      document.getElementById('newImages').value = (Array.isArray(book.images) && book.images.length ? book.images : [book.image].filter(Boolean)).join('\n');
+      document.getElementById('newDesc').value = book.desc || '';
+      document.getElementById('newStock').value = book.stock ?? 10;
+      document.getElementById('newIsOnOrder').checked = !!book.isOnOrder;
+      populateCategorySelect(book.category);
+      document.getElementById('addBookModal').classList.remove('hidden');
+    }
+    function closeAddBookModal() { document.getElementById('addBookModal').classList.add('hidden'); }
+
+    function handleSaveBook(e) {
+      e.preventDefault();
+      const editingId = document.getElementById('editingBookId').value;
+      const isOnOrder = document.getElementById('newIsOnOrder').checked;
+      const catVal = document.getElementById('newCategorySelect').value;
+      const finalCat = catVal === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : catVal;
+      const selectedTag = document.getElementById('newTag').value;
+
+      const bookData = {
+        code: document.getElementById('newBookCode').value.trim(),
+        title: document.getElementById('newTitle').value,
+        author: document.getElementById('newAuthor').value,
+        category: finalCat,
+        tag: selectedTag || '',
+        condition: document.getElementById('newCondition').value,
+        lang: document.getElementById('newLang').value,
+        price: isOnOrder ? 0 : Number(parseFloat(document.getElementById('newPrice').value || 0).toFixed(2)),
+        discount: isOnOrder ? 0 : Number(document.getElementById('newDiscount').value),
+        rating: Number(document.getElementById('newRating').value),
+        image: (document.getElementById('newImages').value.split(/[,\n]+/).map(v => v.trim()).filter(Boolean)[0] || ''),
+        images: document.getElementById('newImages').value.split(/[,\n]+/).map(v => v.trim()).filter(Boolean),
+        desc: document.getElementById('newDesc').value,
+        stock: Math.max(0, Number(document.getElementById('newStock').value || 0)),
+        isOnOrder: isOnOrder
+      };
+
+      if (editingId) {
+        const idx = books.findIndex(b => b.id === Number(editingId));
+        if (idx !== -1) books[idx] = { ...books[idx], ...bookData };
+      } else { books.push({ id: Date.now(), ...bookData, reviews: [] }); }
+
+      saveBooksToStorage(); renderCategories(); renderBooks(); renderAdminTable(); updateAdminStats(); closeAddBookModal();
+    }
+
+    function checkout() {
+      if (!cart.length) return showToast(translations[currentLang].cartEmpty);
+      let total = cart.reduce((acc, i) => acc + (getFinalPrice(books.find(b => b.id === i.id)) * i.qty), 0);
+      document.getElementById('checkoutModalTotal').innerText = `${total.toFixed(2)} zł`;
+      toggleCart(); document.getElementById('checkoutModal').classList.remove('hidden');
+    }
+    function closeCheckoutModal() { document.getElementById('checkoutModal').classList.add('hidden'); }
+
+    function handleCheckoutSubmit(e) {
+      e.preventDefault();
+      const t = translations[currentLang];
+      const now = new Date();
+      const timeStr = `${now.toLocaleDateString()} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      const newOrder = {
+        id: Date.now(),
+        date: timeStr,
+        customer: document.getElementById('custName').value,
+        email: document.getElementById('custEmail').value,
+        phone: document.getElementById('custPhone').value,
+        shipping: document.getElementById('custShipping').value,
+        details: document.getElementById('custShippingDetails').value,
+        payment: document.getElementById('custPayment').value,
+        items: cart.map(i => {
+          const b = books.find(x => x.id === i.id);
+          return { title: b.title, code: b.code || 'N/A', qty: i.qty, price: getFinalPrice(b) };
+        }),
+        total: parseFloat(document.getElementById('checkoutModalTotal').innerText),
+        type: 'Standard',
+        status: 'new',
+        comment: document.getElementById('custOrderComment')?.value.trim() || ''
+      };
+
+      userOrders.unshift(newOrder);
+      saveOrdersToStorage();
+      sendOrderNotification(newOrder);
+      showToast(t.orderSuccessMsg);
+      cart = []; saveCartToStorage(); updateCart(); closeCheckoutModal();
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 transition-all transform translate-y-2 opacity-0';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+      setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => toast.remove(), 300); }, 4000);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
